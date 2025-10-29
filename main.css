@@ -1,0 +1,235 @@
+*{
+    margin: 0%;
+    padding: 0%;
+}
+.main{
+     background-image: url("./Index-page/Index-background.png"); 
+    background-size: cover; 
+    background-repeat: no-repeat; 
+    background-position: center;  
+    min-height: 100vh;            
+    width: 100%;   
+              
+     
+}.page-1 {
+  border-radius: 10px;
+  min-height: 10vh;
+  width: 20%;
+  margin-left: 80px;
+  
+
+      /* ✅ Beech me rahegi */
+}
+
+
+.nav{
+   
+    display: flex;
+    align-items: center;
+    justify-content: space-between; /* ek left me, ek right me */
+   
+}
+.img{
+    height: 60px;
+   
+      position: absolute; 
+       right: 10px;
+       top: 10px;
+    
+    
+    
+}
+
+#audio{
+    height: 70px;
+     position: absolute; 
+       margin-left: 100px;
+       top: 30px;
+       transition: transform 0.3s ease;
+    
+}
+
+#home{
+     height: 70px;
+     position: absolute; 
+      
+       top: 30px;
+       transition: transform 0.3s ease;
+}
+.option{
+        margin-top: 200px;
+        
+       
+    }
+
+ .button{
+           height: 120px;
+          
+           margin-left: 500px;
+       margin-top: 20px;
+         
+    }
+
+    .button {
+    cursor: pointer;
+    transition: transform 0.4s ease; /* smooth animation */
+}
+
+/* Hover karte hi */
+.button:hover {
+    transform: scale(1.1); /* 20% bada ho jayega */
+}
+
+ #audio:hover {
+    cursor: pointer;
+    transform: scale(1.2); /* 20% bada ho jayega */
+}
+
+ #home:hover {
+    cursor: pointer;
+    transform: scale(1.2); /* 20% bada ho jayega */
+}
+
+.story-info {
+ /* dono ko center me rakhega */
+  gap: 40px;               /* beech ka distance */
+  margin-bottom: 20px;
+}
+
+#info {
+  height: 70px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  animation: float 2s ease-in-out infinite; 
+  margin-right: 30px;
+ 
+  position: absolute;
+  top: 216px;
+  left: 1150px;
+    /* thoda hilne ka effect */
+}
+
+
+
+#info-sim {
+  height: 70px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  animation: float 2s ease-in-out infinite; 
+  margin-right: 30px;
+ 
+  position: absolute;
+  top: 386px;
+  left: 1150px;
+    /* thoda hilne ka effect */
+}
+
+
+#info-game {
+  height: 70px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  animation: float 2s ease-in-out infinite; 
+  margin-right: 30px;
+ 
+  position: absolute;
+  top: 546px;
+  left: 1150px;
+    /* thoda hilne ka effect */
+}
+
+/* Hover par thoda zoom aur tilt */
+#info:hover {
+  transform: scale(1.3) ;
+}
+
+#info-sim:hover {
+  transform: scale(1.3) ;
+}
+
+#info-game:hover {
+  transform: scale(1.3) ;
+}
+
+ .text{
+    font-family:sans-serif;
+    font-weight: 900;
+    margin-top:250px;
+    display: flex;
+   justify-content: center;
+  }
+
+/* 👇 Chhota sa 
+
+
+
+/* ✅ Button hover hone par saath wala info button move kare */
+/* ✅ Button hover hone par saath wala info button right move kare */
+.story-info:hover #info {
+  left: 1180px; /* pehle 1150 tha — ab thoda right gaya */
+  transition: left 0.3s ease;
+}
+
+.story-info:hover #info-sim {
+  left: 1180px;
+  transition: left 0.3s ease;
+}
+
+.story-info:hover #info-game {
+  left: 1180px;
+  transition: left 0.3s ease;
+}
+
+
+
+
+
+
+
+
+/* Popup background overlay */
+.popup {
+  display: none; /* hidden by default */
+  position: fixed;
+  top: 0; left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.5); /* transparent dark bg */
+  justify-content: center;
+  align-items: center;
+  z-index: 999;
+}
+
+/* Popup content */
+.popup-content {
+  position: relative;
+  
+  padding: 10px;
+  animation: fadeIn 0.3s ease;
+}
+
+.popup-content img {
+  max-width: 80%;
+  width: 90%;
+  border-radius: 10px;
+}
+
+/* Close button */
+#close-popup {
+  position: absolute;
+  top: 5px;
+  right: 15px;
+  font-size: 40px;
+  color: #333;
+  cursor: pointer;
+  transition: transform 0.2s;
+}
+#close-popup:hover {
+  transform: scale(1.2);
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: scale(0.9); }
+  to { opacity: 1; transform: scale(1); }
+}
+

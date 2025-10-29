@@ -1,0 +1,143 @@
+*{
+    margin: 0%;
+    padding: 0%;
+}
+@font-face {
+  font-family: 'Alphakind';
+  src: url('./Img/alphakind.zip') format('truetype');
+}
+
+body {
+  font-family: 'Alphakind', sans-serif;
+  background-color: #f7faff;
+  text-align: center;
+}
+
+.main{
+     background-image: url("./Home-page/homebackground.png"); 
+     
+    background-size: cover; 
+    background-repeat: no-repeat; 
+    background-position: center;  
+    min-height: 100vh;            
+    width: 100%;   
+              
+     
+}
+.page-1{
+   
+    background-size: cover; 
+      /* halka border */
+    
+    margin-left: 180px;
+}
+.page-2{
+    display: flex;
+    justify-content: center;
+}
+#logo {
+  display: flex;
+  flex-direction: column; /* vertical stacking */
+  align-items: center;
+  justify-content: center;
+  margin-top: 120px;
+ 
+  width: 40rem;
+  height: 25rem;
+  background-size: contain;
+  background-repeat: no-repeat;
+  background-position: center;
+}
+
+#nur, #sim {
+  display: flex;           /* letters in a row */
+  justify-content: center;
+  gap: 2px;
+  font-family: 'Alphakind', sans-serif;
+  font-size: 130px;
+  font-weight: 900;
+  -webkit-text-stroke: 2px black;
+  color: #fff;
+  text-shadow: 3px 3px 0 #000, 5px 5px 0 #333, 6px 6px 0 #555;
+  margin: 0;               /* h1 default margin remove */
+  line-height: 1;
+}
+
+#nur span {
+  color: #44c3ee;
+  display: inline-block;
+  
+}
+
+#sim span {
+  color: #894bca;
+  display: inline-block;
+  margin-top: 10px;
+}
+
+
+ .topic{
+      
+      height: 20px;
+      width: 100px;
+      background-color: aliceblue;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      margin-left: 800px;
+      margin-top: 30px;
+      border-radius: 5px;
+      font-size: 12px;
+
+    }
+     #img2{
+        height: 100px;
+         animation: pulse 5s ease-in-out infinite;
+         
+     }
+    
+      #mac{
+         position: absolute;           /* parent ke relative reference me */
+    top: 5px;                       /* upar se adjust karo */
+    right: 20px;                     /* right edge pe shift */
+    height: 60px;     
+        
+      }
+    
+
+    .button{
+           height: 190px;
+           width: 210px;
+           margin-left: 0px;
+           margin-top: 80px;
+    }
+
+    .button {
+    cursor: pointer;
+    transition: transform 0.3s ease; /* smooth animation */
+}
+
+/* Hover karte hi */
+.button:hover {
+    transform: scale(1.1); /* 20% bada ho jayega */
+}
+
+
+  @keyframes pulse {
+    0% {
+      transform: scale(1);
+    }
+    50% {
+      transform: scale(1.1); /* 20% bigger */
+    }
+    100% {
+      transform: scale(1);
+    }
+  }
+
+
+  .text{
+    font-family:sans-serif;
+    font-weight: 900;
+    margin-top: 80px;
+  }
