@@ -22,31 +22,30 @@
     <!-- 🔹 INSTRUCTION TEXT (Above shelves, centered) -->
    
     <!-- 🔹 SHELVES SECTION (single row: Shelf A | Instruction | Shelf B) -->
-    <div class="flex justify-center  mx-auto px-3 flex-1 max-w-7xl ">
+    <div class="flex justify-center pt-20  mx-auto px-3 flex-1 max-w-7xl  ">
       <div class="flex flex-row items-start justify-center gap-8 lg:gap-8 md:gap-6 sm:gap-4">
         <!-- Left: Shelf A -->
         <div class="flex flex-col items-center gap-4">
-          <div class="px-5 py-2 rounded-full text-lg font-semibold text-black bg-yellow-400 shadow-md text-center min-w-[100px] md:text-base md:px-4 md:py-1.5 sm:text-sm sm:px-3 sm:py-1">Shelf A</div>
-          <div class="shelfi-A">
+             <div class="shelfi-A">
             <div class="relative flex flex-col items-center">
-              <img src="./IMAGES/SHELF-A.png" alt="Shelf A" class="w-full max-w-[350px] h-auto block lg:max-w-[280px] md:max-w-[300px] sm:max-w-[250px]">
-              <div class="shelf-items" id="shelfA-items"></div>
-              <img src="./IMAGES/lip-Grou.png" alt="Shelf bottom A" class="w-full max-w-[350px] h-auto block lg:max-w-[280px] md:max-w-[300px] sm:max-w-[250px]">
+              <img src="./IMAGES/SHELF-A.png" alt="Shelf A" class="w-full  h-auto block lg:max-w-[280px] md:max-w-[300px] max-w-[250px]">
+              <div class="shelf-items border w-[40vh] " ></div>
+              <img src="./IMAGES/lip-Grou.png" alt="Shelf bottom A"
+     class="block mx-auto w-[220px] sm:w-[320px] md:w-[420px] lg:w-[520px] xl:w-[600px] h-[140px] sm:h-[190px] md:h-[260px] lg:h-[400px] xl:h-[360px]  rounded-md shadow-sm object-contain" />
             </div>
           </div>
         </div>
 
         <!-- Center: Instruction -->
-        <div class="flex items-center  h-full justify-center text-center my-8 md:my-6 sm:my-4">
-          <p class="text-sm font-semibold text-black m-0 leading-tight md:text-4xl ">
+        <div class="flex items-center  lg:h-full w-full justify-center text-center  my-8 md:my-6 sm:my-4">
+          <p class=" font-semibold text-black m-0 leading-tight text-sm  lg:text-4xl ">
             <span class="text-red-600 font-bold"> Tap</span> and <span class="text-red-600 font-bold">drag</span> toys <br/> to the shelves
           </p>
         </div>
 
         <!-- Right: Shelf B -->
         <div class="flex flex-col items-center gap-4">
-          <div class="px-5 py-2 rounded-full text-lg font-semibold text-black bg-yellow-400 shadow-md text-center min-w-[100px] md:text-base md:px-4 md:py-1.5 sm:text-sm sm:px-3 sm:py-1">Shelf B</div>
-          <div class="shelfi-B">
+            <div class="shelfi-B">
             <div class="relative flex flex-col items-center">
               <img src="./IMAGES/SHELF-A.png" alt="Shelf B" class="w-full max-w-[350px] h-auto block lg:max-w-[280px] md:max-w-[300px] sm:max-w-[250px]">
               <div class="shelf-items" id="shelfB-items"></div>
@@ -64,9 +63,12 @@
       <img src="./IMAGES/ship.png" alt="Boat" data-shelf="B" data-position="2" class="absolute bottom-10 lg:bottom-50 left-0   cursor-pointer transition-transform duration-300 relative z-10 block -translate-y-0.5 hover:scale-110 lg:w-20 lg:h-20 w-10 h-10">
       <img src="./IMAGES/hore.png" alt="Horse" data-shelf="A" data-position="1" class="absolute bottom-3 lg:bottom-20 left-0  cursor-pointer transition-transform  duration-300 relative z-10 block translate-y-1.5 hover:scale-110 lg:w-20 lg:h-20 w-10 h-10">
 
-      <img src="./IMAGES/ball.png" alt="Ball" data-shelf="A" data-position="4" class="absolute bottom-10 lg:bottom-50 left-0  cursor-pointer transition-transform duration-300 border relative z-10 block -translate-y-1 hover:scale-110 lg:w-20 lg:h-20 w-10 h-10">
+      <img src="./IMAGES/ball.png" alt="Ball" data-shelf="A" data-position="4" class="absolute bottom-10 lg:bottom-50 left-0  cursor-pointer transition-transform duration-300  relative z-10 block -translate-y-1 hover:scale-110 lg:w-20 lg:h-20 w-10 h-10">
       <img src="./IMAGES/block-house.png" alt="Block House" data-shelf="A" data-position="3" class="absolute bottom-3 lg:bottom-20 left-0  cursor-pointer transition-transform duration-300 relative z-10 block translate-y-1 hover:scale-110 lg:w-20 lg:h-20 w-10 h-10">
 
+      <img src="./IMAGES/fan.png" alt="Fan" data-shelf="B" data-position="1" class="absolute bottom-10 lg:bottom-50 left-0  cursor-pointer transition-transform duration-300 relative z-10 block translate-y-1 hover:scale-110 lg:w-20 lg:h-20 w-10 h-10">
+
+      <img src="./IMAGES/roll.png" alt="Roll" data-shelf="B" data-position="3" class="absolute bottom-3 lg:bottom-20 left-0  cursor-pointer transition-transform duration-300 relative z-10 block translate-y-2 hover:scale-110 lg:w-20 lg:h-20 w-10 h-10">
     </div>
 
     <!-- 🔹 FOOTER -->

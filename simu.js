@@ -9,24 +9,35 @@ document.addEventListener("DOMContentLoaded", () => {
   // Track which items have been placed
   const placedItems = new Set();
   
-  // Predefined positions for each toy (matching image layout exactly)
-  // Format: [x offset from shelf left, y offset from shelf top]
-  // Shelf A: Top tier - Train (left), Horse (right); Bottom tier - Dino (left), Block House (middle), Ball (right)
-  // Shelf B: Top tier - Duck (left), Pinwheel (right); Bottom tier - Boat (left), Spinning Top (right)
-  const shelfPositions = {
+  // Percent-based shelf positions for responsiveness
+  const shelfPositionsPct = {
     A: [
-      { x: 10,  y: 120 },   // 0 Train  (top-left)
-      { x: 200, y: 120 },   // 1 Horse  (top-right)
-      { x: 10,  y: 270 },  // 2 Dino   (bottom-left)
-      { x: 120, y: 270 },  // 3 Block  (bottom-center)
-      { x: 225, y: 270 },  // 4 Ball   (bottom-right)
+      { x: 0.08, y: 0.22 }, // Train
+      { x: 0.70, y: 0.22 }, // Horse
+      { x: 0.08, y: 0.63 }, // Dino
+      { x: 0.37, y: 0.63 }, // Block
+      { x: 0.75, y: 0.63 }, // Ball
     ],
     B: [
-      { x: 25,  y: 120 },   // 0 Duck   (top-left)
-      { x: 220, y: 120 },   // 1 Fan    (top-right)
-      { x: 65,  y: 270 },  // 2 Boat   (bottom-left)
-      { x: 235, y: 270 },  // 3 Roll   (bottom-right)
+      { x: 0.10, y: 0.22 }, // Duck
+      { x: 0.67, y: 0.22 }, // Pinwheel
+      { x: 0.23, y: 0.63 }, // Boat
+      { x: 0.60, y: 0.63 }, // Roll
     ]
+  };
+
+  // Toy shelf image sizes: customize per toy per device
+  const toySizes = {
+    "Dinosaur":     { desktop: {w:150,h:150}, tablet: {w:20,h:20}, phone: {w:40,h:40} },
+    "Train":        { desktop: {w:150,h:150}, tablet: {w:20,h:20}, phone: {w:40,h:40} },
+    "Duck":         { desktop: {w:150,h:150}, tablet: {w:20,h:20}, phone: {w:40,h:40} },
+    "Boat":         { desktop: {w:150,h:150}, tablet: {w:20,h:20}, phone: {w:40,h:40} },
+    "Horse":        { desktop: {w:150,h:150}, tablet: {w:20,h:20}, phone: {w:40,h:40} },
+    "Ball":         { desktop: {w:120,h:120}, tablet: {w:20,h:20},  phone: {w:45,h:45} },
+    "Block House":  { desktop: {w:150,h:150}, tablet: {w:20,h:20}, phone: {w:40,h:40} },
+    "Fan":          { desktop: {w:150,h:150}, tablet: {w:20,h:20}, phone: {w:40,h:40} },
+    "Roll":         { desktop: {w:150,h:150}, tablet: {w:20,h:20}, phone: {w:40,h:40} },
+    // Add more or adjust values per your needs
   };
 
   items.forEach((item) => {
@@ -56,15 +67,29 @@ document.addEventListener("DOMContentLoaded", () => {
 
       // Get target shelf position using predefined positions
       const shelfRect = shelfContainer.getBoundingClientRect();
-      const position = shelfPositions[targetShelf][positionIndex];
+      const pos = shelfPositionsPct[targetShelf][positionIndex];
 
       // Create clone for shelf with specific position (immediately, no animation)
       const clone = item.cloneNode(true);
-      clone.style.width = "60px";
-      clone.style.height = "auto";
+      // --- UNIQUE TOY SIZE PER DEVICE LOGIC ---
+      const shelfWidth = shelfContainer.offsetWidth;
+      const toyName = item.alt;
+      let size = toySizes[toyName] || toySizes["Dinosaur"];
+      if (shelfWidth <= 480 && size.phone) {
+        clone.style.width = size.phone.w + "px";
+        clone.style.height = size.phone.h + "px";
+      } else if (shelfWidth <= 1023 && size.tablet) {
+        clone.style.width = size.tablet.w + "px";
+        clone.style.height = size.tablet.h + "px";
+      } else {
+        clone.style.width = size.desktop.w + "px";
+        clone.style.height = size.desktop.h + "px";
+      }
+      // --- END SIZING BLOCK ---
       clone.style.position = "absolute";
-      clone.style.left = `${position.x}px`;
-      clone.style.top = `${position.y}px`;
+      // When placing a toy on a shelf, use percent-based coordinates for responsive placement
+      clone.style.left = `${shelfRect.width * pos.x}px`;
+      clone.style.top  = `${shelfRect.height * pos.y}px`;
       clone.style.margin = "0";
       clone.style.padding = "0";
       clone.classList.remove("moving");
