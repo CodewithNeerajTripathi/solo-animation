@@ -4,48 +4,80 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Shelf Animation</title>
+  <script src="https://cdn.tailwindcss.com"></script>
   <link rel="stylesheet" href="simu.css">
 </head>
-<body>
-  <div class="main">
-    <!-- 🔹 ICONS -->
-    <div class="icon">
-      <div class="icon-left">
-        <img id="home" src="./Index-page/home-button.png" alt="">
-        <img id="musi" src="./Index-page/music-button.png" alt="">
-        <img id="info" src="./Index-page/Info-button.png" alt="">
+<body class="font-sans">
+  <div class="w-full min-h-screen bg-white relative flex flex-col pb-32">
+    <!-- 🔹 HEADER SECTION -->
+    <div class="flex items-center justify-between p-4 w-full relative z-10 md:p-3 lg:p-4">
+      <div class="flex items-center gap-4 md:gap-2.5 sm:gap-2.5">
+        <img id="home" src="./Index-page/home-button.png" alt="Home" class="h-12 w-12 cursor-pointer transition-transform duration-300 hover:scale-110 md:h-10 md:w-10 sm:h-9 sm:w-9">
+        <img id="musi" src="./Index-page/music-button.png" alt="Music" class="h-12 w-12 cursor-pointer transition-transform duration-300 hover:scale-110 md:h-10 md:w-10 sm:h-9 sm:w-9">
+        <img id="info" src="./Index-page/Info-button.png" alt="Info" class="h-12 w-12 cursor-pointer transition-transform duration-300 hover:scale-110 md:h-10 md:w-10 sm:h-9 sm:w-9">
       </div>
-      <img id="logo" src="./ME_imprint_land_digital_rgb.png" alt="">
+      <img id="logo" src="./ME_imprint_land_digital_rgb.png" alt="Macmillan Education Logo" class="h-12 w-auto md:h-10 sm:h-9">
     </div>
 
-    <!-- 🔹 SHELVES -->
-    <div class="shelf">
-      <div class="shelfi-A">
-        <img src="./IMAGES/SHELF-A.png" alt="">
-        <div class="shelf-items"></div>
-        <img src="./IMAGES/lip-Grou.png" alt="">
-      </div>
-      <div class="shelfi-B">
-        <img src="./IMAGES/SHELF-A.png" alt="">
-        <div class="shelf-items"></div>
-        <img src="./IMAGES/lip-Grou.png" alt="">
+    <!-- 🔹 INSTRUCTION TEXT (Above shelves, centered) -->
+   
+    <!-- 🔹 SHELVES SECTION (single row: Shelf A | Instruction | Shelf B) -->
+    <div class="flex justify-center  mx-auto px-3 flex-1 max-w-7xl ">
+      <div class="flex flex-row items-start justify-center gap-8 lg:gap-8 md:gap-6 sm:gap-4">
+        <!-- Left: Shelf A -->
+        <div class="flex flex-col items-center gap-4">
+          <div class="px-5 py-2 rounded-full text-lg font-semibold text-black bg-yellow-400 shadow-md text-center min-w-[100px] md:text-base md:px-4 md:py-1.5 sm:text-sm sm:px-3 sm:py-1">Shelf A</div>
+          <div class="shelfi-A">
+            <div class="relative flex flex-col items-center">
+              <img src="./IMAGES/SHELF-A.png" alt="Shelf A" class="w-full max-w-[350px] h-auto block lg:max-w-[280px] md:max-w-[300px] sm:max-w-[250px]">
+              <div class="shelf-items" id="shelfA-items"></div>
+              <img src="./IMAGES/lip-Grou.png" alt="Shelf bottom A" class="w-full max-w-[350px] h-auto block lg:max-w-[280px] md:max-w-[300px] sm:max-w-[250px]">
+            </div>
+          </div>
+        </div>
+
+        <!-- Center: Instruction -->
+        <div class="flex items-center  h-full justify-center text-center my-8 md:my-6 sm:my-4">
+          <p class="text-sm font-semibold text-black m-0 leading-tight md:text-4xl ">
+            <span class="text-red-600 font-bold"> Tap</span> and <span class="text-red-600 font-bold">drag</span> toys <br/> to the shelves
+          </p>
+        </div>
+
+        <!-- Right: Shelf B -->
+        <div class="flex flex-col items-center gap-4">
+          <div class="px-5 py-2 rounded-full text-lg font-semibold text-black bg-yellow-400 shadow-md text-center min-w-[100px] md:text-base md:px-4 md:py-1.5 sm:text-sm sm:px-3 sm:py-1">Shelf B</div>
+          <div class="shelfi-B">
+            <div class="relative flex flex-col items-center">
+              <img src="./IMAGES/SHELF-A.png" alt="Shelf B" class="w-full max-w-[350px] h-auto block lg:max-w-[280px] md:max-w-[300px] sm:max-w-[250px]">
+              <div class="shelf-items" id="shelfB-items"></div>
+              <img src="./IMAGES/lip-Grou.png" alt="Shelf bottom B" class="w-full max-w-[350px] h-auto block lg:max-w-[280px] md:max-w-[300px] sm:max-w-[250px]">
+            </div>
+          </div>
+        </div>
       </div>
     </div>
-
     <!-- 🔹 ITEMS (bottom) -->
-    <div class="items">
-      <img src="./IMAGES/ball.png" alt="">
-      <img src="./IMAGES/dino.png" alt="">
-      <img src="./IMAGES/block-house.png" alt="">
-      <img src="./IMAGES/DUCK.png" alt="">
-      <img src="./IMAGES/fan.png" alt="">
-      <img src="./IMAGES/hore.png" alt="">
-      <img src="./IMAGES/roll.png" alt="">
-      <img src="./IMAGES/ship.png" alt="">
-      <img src="./IMAGES/train.png" alt="">
+    <div class="flex justify-center   w-fulls flex-nowrap gap-5 my-10 mx-auto p-5 max-w-7xl  relative md:flex-wrap lg:gap-1 md:my-8 gap-0" id="items-container">
+      <img src="./IMAGES/dino.png" alt="Dinosaur" data-shelf="A" data-position="2" class="absolute bottom-3  lg:bottom-20 left-0  cursor-pointer transition-transform duration-300 relative z-0 block translate-y-1 hover:scale-110  lg:w-20 lg:h-20 w-10 h-10">
+      <img src="./IMAGES/train.png" alt="Train" data-shelf="A" data-position="0" class="absolute bottom-10 lg:bottom-50 left-0  cursor-pointer transition-transform duration-300 relative z-10 block translate-y-2 hover:scale-110 lg:w-20 lg:h-20 w-6 h-6   ">
+      <img src="./IMAGES/DUCK.png" alt="Duck" data-shelf="B" data-position="0" class="absolute bottom-3 lg:bottom-20 left-0  cursor-pointer transition-transform duration-300 relative z-10 block -translate-y-1 hover:scale-110 lg:w-20 lg:h-20 w-10 h-10">
+      <img src="./IMAGES/ship.png" alt="Boat" data-shelf="B" data-position="2" class="absolute bottom-10 lg:bottom-50 left-0   cursor-pointer transition-transform duration-300 relative z-10 block -translate-y-0.5 hover:scale-110 lg:w-20 lg:h-20 w-10 h-10">
+      <img src="./IMAGES/hore.png" alt="Horse" data-shelf="A" data-position="1" class="absolute bottom-3 lg:bottom-20 left-0  cursor-pointer transition-transform  duration-300 relative z-10 block translate-y-1.5 hover:scale-110 lg:w-20 lg:h-20 w-10 h-10">
+
+      <img src="./IMAGES/ball.png" alt="Ball" data-shelf="A" data-position="4" class="absolute bottom-10 lg:bottom-50 left-0  cursor-pointer transition-transform duration-300 border relative z-10 block -translate-y-1 hover:scale-110 lg:w-20 lg:h-20 w-10 h-10">
+      <img src="./IMAGES/block-house.png" alt="Block House" data-shelf="A" data-position="3" class="absolute bottom-3 lg:bottom-20 left-0  cursor-pointer transition-transform duration-300 relative z-10 block translate-y-1 hover:scale-110 lg:w-20 lg:h-20 w-10 h-10">
+
+    </div>
+
+    <!-- 🔹 FOOTER -->
+    <div class="text-center py-5 mt-auto bg-white sm:py-4">
+      <p class="text-sm text-gray-700 font-medium sm:text-xs">Copyright @ 2026 Macmillan Education India Private Limited. All rights reserved.</p>
     </div>
   </div>
 
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.13.0/gsap.min.js"
+    integrity="sha512-NcZdtrT77bJr4STcmsGAESr06BYGE8woZdSdEgqnpyqac7sugNO+Tr4bGwGF3MsnEkGKhU2KL2xh6Ec+BqsaHA=="
+    crossorigin="anonymous" referrerpolicy="no-referrer"></script>
   <script src="./simu.js"></script>
 </body>
 </html>
