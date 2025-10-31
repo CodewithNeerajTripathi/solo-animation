@@ -1,138 +1,562 @@
 document.addEventListener("DOMContentLoaded", () => {
-  const items = document.querySelectorAll("#items-container img");
-  const shelfA = document.getElementById("shelfA-items");
-  const shelfB = document.getElementById("shelfB-items");
-  const itemsContainer = document.getElementById("items-container");
-  
-  console.log("Items found:", items.length); // Debug: check if items are found
+  const items = document.querySelectorAll(".items img");
+  const shelfA = document.querySelector(".shelfi-A .shelf-items");
+  const shelfB = document.querySelector(".shelfi-B .shelf-items");
+  const lipA = document.querySelector(".shelfi-A .lip"); // ✅ Lip A reference
+  const lipB = document.querySelector(".shelfi-B .lip"); // ✅ Lip B reference
 
-  // Track which items have been placed
+  console.log("Items found:", items.length);
+
   const placedItems = new Set();
+
+  // ✅ Hide all images in toys-above-self-A and toys-above-self-B by default
+  const allToyImages = document.querySelectorAll(".toys-above-self-A img, .toys-above-self-B img");
+  allToyImages.forEach(img => {
+    img.style.display = "none";
+  });
+
+  // ✅ LIP-RELATIVE POSITIONS - Lip ke ANDAR ke coordinates
+  function getToyPositionsRelativeToLip() {
+    const screenWidth = window.innerWidth;
+    
+    let scale = 1;
+    if (screenWidth <= 1400 && screenWidth >= 1200) {
+      scale = 0.87;
+    } else if (screenWidth < 1200 && screenWidth >= 1024) {
+      scale = 0.75;
+    } else if (screenWidth < 1024 && screenWidth >= 768) {
+      scale = 0.62;
+    } else if (screenWidth < 768) {
+      scale = 0.48;
+    }
+
+    // ✅ Shelf A - Top shelf positions (lip ke andar perfectly fit)
+    // ✅ Shelf B - Bottom shelf positions (lip ke andar perfectly fit)
+    return {
+      scale: scale,
+      A: [
+        { x: 40 * scale, y: 100 * scale },    // Train - top shelf left
+        { x: 180 * scale, y: 70 * scale },   // Horse - top shelf center-right
+        { x: 40 * scale, y: 250 * scale },   // Dino - bottom shelf left
+        { x: 175 * scale, y: 278 * scale },  // House - bottom shelf center
+        { x: 300 * scale, y: 255 * scale },  // Ball - bottom shelf right
+      ],
+      B: [
+        { x: 15 * scale, y: 80 * scale },    // Duck - top shelf left
+        { x: 210 * scale, y: 90 * scale },   // Roll - top shelf right
+        { x: 20 * scale, y: 270 * scale },   // Ship - bottom shelf left
+        { x: 220 * scale, y: 290 * scale },  // Fan - bottom shelf right
+      ]
+    };
+  }
+
+  let toyPositions = getToyPositionsRelativeToLip();
+
+  // ✅ Resize handler
+  let resizeTimer;
+  window.addEventListener('resize', () => {
+    clearTimeout(resizeTimer);
+    resizeTimer = setTimeout(() => {
+      console.log('🔄 Screen resized - updating positions...');
+      toyPositions = getToyPositionsRelativeToLip();
+      updatePlacedItemsPositions();
+    }, 200);
+  });
+
+  // ✅ Update placed items based on LIP position
+  function updatePlacedItemsPositions() {
+    const toySizes = getToySizes();
+    
+    // Shelf A items
+    const shelfAItems = shelfA.querySelectorAll('img');
+    shelfAItems.forEach((clone, idx) => {
+      if (toyPositions.A[idx] && lipA) {
+        const lipRect = lipA.getBoundingClientRect();
+        const shelfRect = shelfA.getBoundingClientRect();
+        
+        // ✅ Lip ke relative position calculate karo
+        const relativeX = lipRect.left - shelfRect.left;
+        const relativeY = lipRect.top - shelfRect.top;
+        
+        clone.style.left = `${relativeX + toyPositions.A[idx].x}px`;
+        clone.style.top = `${relativeY + toyPositions.A[idx].y}px`;
+        
+        const originalIndex = parseInt(clone.dataset.originalIndex);
+        if (!isNaN(originalIndex) && toySizes[originalIndex]) {
+          clone.style.width = toySizes[originalIndex];
+        }
+      }
+    });
+
+    // Shelf B items
+    const shelfBItems = shelfB.querySelectorAll('img');
+    shelfBItems.forEach((clone, idx) => {
+      if (toyPositions.B[idx] && lipB) {
+        const lipRect = lipB.getBoundingClientRect();
+        const shelfRect = shelfB.getBoundingClientRect();
+        
+        const relativeX = lipRect.left - shelfRect.left;
+        const relativeY = lipRect.top - shelfRect.top;
+        
+        clone.style.left = `${relativeX + toyPositions.B[idx].x}px`;
+        clone.style.top = `${relativeY + toyPositions.B[idx].y}px`;
+        
+        const originalIndex = parseInt(clone.dataset.originalIndex);
+        if (!isNaN(originalIndex) && toySizes[originalIndex]) {
+          clone.style.width = toySizes[originalIndex];
+        }
+      }
+    });
+  }
+
+  // ✅ Dynamic toy sizes - proper sizing to avoid overlap
+  function getToySizes() {
+    const scale = toyPositions.scale;
+    return {
+      0: `${85 * scale}px`,   // Train - reduced size
+      1: `${115 * scale}px`,  // Horse - reduced size
+      2: `${95 * scale}px`,   // Dino - reduced size
+      3: `${95 * scale}px`,   // House - reduced size
+      4: `${85 * scale}px`,   // Ball - reduced size
+      5: `${140 * scale}px`,  // Duck - reduced size
+      6: `${110 * scale}px`,  // Roll - reduced size
+      7: `${140 * scale}px`,  // Ship - reduced size
+      8: `${105 * scale}px`,  // Fan - reduced size
+    };
+  }
+
+  // ✅ Instruction & image elements
+  const instruction = document.querySelector(".cont h1");
+  const miloImg = document.querySelector(".milo");
+  const clickImg = document.querySelector(".click");
+  const img4 = document.querySelector(".img4");
+  const img5 = document.querySelector(".img5");
+  const moreImg = document.querySelector(".more");
+  const lessImg = document.querySelector(".less");
+
+  [miloImg, clickImg, img4, img5, moreImg, lessImg].forEach(img => {
+    if (img) img.style.display = "none";
+  });
+  if (instruction) instruction.style.opacity = "0";
   
-  // Percent-based shelf positions for responsiveness
-  const shelfPositionsPct = {
-    A: [
-      { x: 0.08, y: 0.22 }, // Train
-      { x: 0.70, y: 0.22 }, // Horse
-      { x: 0.08, y: 0.63 }, // Dino
-      { x: 0.37, y: 0.63 }, // Block
-      { x: 0.75, y: 0.63 }, // Ball
-    ],
-    B: [
-      { x: 0.10, y: 0.22 }, // Duck
-      { x: 0.67, y: 0.22 }, // Pinwheel
-      { x: 0.23, y: 0.63 }, // Boat
-      { x: 0.60, y: 0.63 }, // Roll
-    ]
+  // ✅ Initialize .click element - hide by default
+  if (clickImg) {
+    clickImg.style.display = "none";
+    clickImg.style.opacity = "0";
+  }
+
+  // ✅ Subtitle system - Add your custom text for each audio here
+  const audioSubtitles = {
+    1: "Welcome to the toy shelf!",
+    2: "",
+    3: "",
+    4: "Hello start 1",
+    5: "the end 1",
+    6: "",
+    7: "",
+    8: "",
+    9: "Hello guys 3",
+    10: "Hello start 2",
+    11: "Hello guys",
+    12: "the end",
+    13: "",
+    14: "",
+    15: "",
+    16: "Great job completing the activity!"
   };
 
-  // Toy shelf image sizes: customize per toy per device
-  const toySizes = {
-    "Dinosaur":     { desktop: {w:150,h:150}, tablet: {w:20,h:20}, phone: {w:40,h:40} },
-    "Train":        { desktop: {w:150,h:150}, tablet: {w:20,h:20}, phone: {w:40,h:40} },
-    "Duck":         { desktop: {w:150,h:150}, tablet: {w:20,h:20}, phone: {w:40,h:40} },
-    "Boat":         { desktop: {w:150,h:150}, tablet: {w:20,h:20}, phone: {w:40,h:40} },
-    "Horse":        { desktop: {w:150,h:150}, tablet: {w:20,h:20}, phone: {w:40,h:40} },
-    "Ball":         { desktop: {w:120,h:120}, tablet: {w:20,h:20},  phone: {w:45,h:45} },
-    "Block House":  { desktop: {w:150,h:150}, tablet: {w:20,h:20}, phone: {w:40,h:40} },
-    "Fan":          { desktop: {w:150,h:150}, tablet: {w:20,h:20}, phone: {w:40,h:40} },
-    "Roll":         { desktop: {w:150,h:150}, tablet: {w:20,h:20}, phone: {w:40,h:40} },
-    // Add more or adjust values per your needs
-  };
+  // ✅ Create subtitle element in .cont
+  const contElement = document.querySelector(".cont");
+  let subtitleElement = null;
+  if (contElement) {
+    subtitleElement = document.createElement("div");
+    subtitleElement.className = "subtitle-text";
+    subtitleElement.style.cssText = `
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      color: #333;
+      font-size: 28px;
+      font-weight: bold;
+      text-align: center;
+      opacity: 0;
+      transition: opacity 0.3s ease;
+      pointer-events: none;
+      z-index: 100;
+      background: rgba(255, 255, 255, 0.9);
+      padding: 15px 30px;
+      border-radius: 10px;
+      box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+    `;
+    contElement.appendChild(subtitleElement);
+  }
 
-  items.forEach((item) => {
-    item.addEventListener("click", (e) => {
-      e.preventDefault();
-      e.stopPropagation();
-      
-      // Prevent clicking same item twice
-      if (placedItems.has(item) || item.classList.contains("moving")) {
-        return;
+  let isPlayingAudio = false;
+  let toysClickable = false;
+  const audioQueue = [];
+
+  function disableToyClicks() {
+    toysClickable = false;
+    items.forEach(item => {
+      item.style.pointerEvents = "none";
+      item.style.cursor = "not-allowed";
+    });
+  }
+
+  function enableToyClicks() {
+    toysClickable = true;
+    items.forEach(item => {
+      if (!placedItems.has(item)) {
+        item.style.pointerEvents = "auto";
+        item.style.cursor = "pointer";
+      }
+    });
+  }
+
+  function playNextAudio() {
+    if (isPlayingAudio || audioQueue.length === 0) return;
+    const audioNum = audioQueue.shift();
+    if (audioNum > 16) return;
+    isPlayingAudio = true;
+
+    const audio = new Audio(`./audio/${String(audioNum).padStart(2, "0")}.mp3`);
+    console.log("🎵 Playing audio:", audioNum);
+
+    // ✅ Show subtitle text when audio starts
+    if (subtitleElement && audioSubtitles[audioNum] && audioSubtitles[audioNum].trim() !== "") {
+      subtitleElement.textContent = audioSubtitles[audioNum];
+      subtitleElement.style.opacity = "1";
+    }
+
+    // ✅ Update .click element with audio subtitle text
+    if (clickImg && audioSubtitles[audioNum] && audioSubtitles[audioNum].trim() !== "") {
+      clickImg.textContent = audioSubtitles[audioNum];
+      clickImg.style.display = "block";
+      clickImg.style.opacity = "1";
+    }
+
+    switch (audioNum) {
+      case 4:
+        if (miloImg) miloImg.style.display = "block";
+        if (instruction) instruction.style.opacity = "1";
+        break;
+      case 5:
+        if (instruction) {
+          instruction.style.opacity = "1";
+          instruction.innerHTML = '<span style="color:red;font-weight:bold;">Click</span> the beds';
+        }
+        break;
+      case 9:
+        if (img5) img5.style.display = "block";
+        break;
+      case 10:
+        if (img4) img4.style.display = "block";
+        break;
+      case 11:
+        if (moreImg) moreImg.style.display = "block";
+        break;
+      case 12:
+        if (lessImg) lessImg.style.display = "block";
+        break;
+    }
+
+    audio.onended = () => {
+      // ✅ Hide subtitle text when audio ends
+      if (subtitleElement) {
+        subtitleElement.style.opacity = "0";
       }
 
-      const targetShelf = item.getAttribute("data-shelf");
-      const positionIndex = parseInt(item.getAttribute("data-position"));
+      // ✅ Hide .click element when audio ends (will show again with next audio if it has text)
+      if (clickImg) {
+        clickImg.style.opacity = "0";
+        // Don't hide completely, just fade out - next audio will update it
+      }
+
+      switch (audioNum) {
+        case 4:
+          if (miloImg) miloImg.style.display = "none";
+          if (instruction) instruction.style.opacity = "0";
+          break;
+        case 5:
+          if (instruction) {
+            instruction.innerHTML =
+              '<span style="color:red;font-weight:bold;">Tap</span> and <span style="color:red;font-weight:bold;">drag</span> toys<br>to the shelves';
+            instruction.style.opacity = "0";
+          }
+          enableToyClicks();
+          break;
+        case 9:
+          if (img5) img5.style.display = "none";
+          break;
+        case 10:
+          if (img4) img4.style.display = "none";
+          break;
+        case 11:
+          if (moreImg) moreImg.style.display = "none";
+          break;
+        case 12:
+          if (lessImg) lessImg.style.display = "none";
+          break;
+      }
+
+      if (audioNum === 16) {
+        showPlayAgainPage();
+      }
+
+      isPlayingAudio = false;
+      playNextAudio();
+    };
+
+    audio.play().catch(err => console.log("Audio play error:", err));
+  }
+
+  function playInitialAudios() {
+    disableToyClicks();
+    setTimeout(() => {
+      audioQueue.push(1, 3, 4, 5);
+      playNextAudio();
+    }, 1000);
+  }
+
+  let started = false;
+  document.addEventListener("click", () => {
+    if (!started) {
+      started = true;
+      playInitialAudios();
+      console.log("▶️ Audio sequence started after user click");
+    }
+  });
+
+  items.forEach((item, index) => {
+    item.addEventListener("click", () => {
+      if (!toysClickable || placedItems.has(item)) return;
+
+      toyPositions = getToyPositionsRelativeToLip();
+
+      const targetShelf = index < 5 ? "A" : "B";
+      const positionIndex = targetShelf === "A" ? index : index - 5;
       const shelfContainer = targetShelf === "A" ? shelfA : shelfB;
-      
-      console.log("Item clicked:", item.src, "Target shelf:", targetShelf, "Position:", positionIndex); // Debug
-      
-      // Mark item as moving and hide immediately
-      item.classList.add("moving");
+      const lipElement = targetShelf === "A" ? lipA : lipB;
+
+      console.log("🧸 Item clicked:", item.alt, "→ Shelf:", targetShelf);
+
       placedItems.add(item);
+      // ✅ Hide the original image from .items - preserve size of remaining items
+      // Before hiding, ensure remaining visible items maintain their size
+      item.style.display = "none";
+      item.style.pointerEvents = "none";
       
-      // Hide item immediately from bottom - use !important to override Tailwind
-      item.style.setProperty("display", "none", "important");
-      item.style.setProperty("opacity", "0", "important");
-      item.style.setProperty("visibility", "hidden", "important");
-
-      // Get target shelf position using predefined positions
-      const shelfRect = shelfContainer.getBoundingClientRect();
-      const pos = shelfPositionsPct[targetShelf][positionIndex];
-
-      // Create clone for shelf with specific position (immediately, no animation)
-      const clone = item.cloneNode(true);
-      // --- UNIQUE TOY SIZE PER DEVICE LOGIC ---
-      const shelfWidth = shelfContainer.offsetWidth;
-      const toyName = item.alt;
-      let size = toySizes[toyName] || toySizes["Dinosaur"];
-      if (shelfWidth <= 480 && size.phone) {
-        clone.style.width = size.phone.w + "px";
-        clone.style.height = size.phone.h + "px";
-      } else if (shelfWidth <= 1023 && size.tablet) {
-        clone.style.width = size.tablet.w + "px";
-        clone.style.height = size.tablet.h + "px";
-      } else {
-        clone.style.width = size.desktop.w + "px";
-        clone.style.height = size.desktop.h + "px";
+      // ✅ Force remaining visible images to maintain their size
+      const widthPercentages = {
+        "duck": 7,
+        "hore": 11,
+        "house": 6,
+        "train": 7,
+        "ship": 10,
+        "ball": 7,
+        "fan": 6
+      };
+      
+      // Handle items-img-A (for Shelf A)
+      if (targetShelf === "A") {
+        const itemsImgA = document.querySelector(".items-img-A");
+        if (itemsImgA) {
+          setTimeout(() => {
+            const allItemsInA = itemsImgA.querySelectorAll("img");
+            allItemsInA.forEach(img => {
+              const imgId = img.id;
+              const correspondingItem = Array.from(items).find(i => i.id === imgId);
+              const isPlaced = correspondingItem && placedItems.has(correspondingItem);
+              
+              if (!isPlaced && widthPercentages[imgId]) {
+                const percent = widthPercentages[imgId];
+                const viewportWidth = window.innerWidth;
+                const pixelWidth = (viewportWidth * percent) / 100;
+                img.style.width = `${pixelWidth}px`;
+                img.style.minWidth = `${pixelWidth}px`;
+                img.style.maxWidth = `${pixelWidth}px`;
+                img.style.flexShrink = "0";
+                img.style.flexGrow = "0";
+              }
+            });
+          }, 0);
+        }
       }
-      // --- END SIZING BLOCK ---
+      
+      // Handle items-img-B (for Shelf B)
+      if (targetShelf === "B") {
+        const itemsImgB = document.querySelector(".items-img-B");
+        if (itemsImgB) {
+          setTimeout(() => {
+            const allItemsInB = itemsImgB.querySelectorAll("img");
+            allItemsInB.forEach(img => {
+              const imgId = img.id;
+              const correspondingItem = Array.from(items).find(i => i.id === imgId);
+              const isPlaced = correspondingItem && placedItems.has(correspondingItem);
+              
+              if (!isPlaced && widthPercentages[imgId]) {
+                const percent = widthPercentages[imgId];
+                const viewportWidth = window.innerWidth;
+                const pixelWidth = (viewportWidth * percent) / 100;
+                img.style.width = `${pixelWidth}px`;
+                img.style.minWidth = `${pixelWidth}px`;
+                img.style.maxWidth = `${pixelWidth}px`;
+                img.style.flexShrink = "0";
+                img.style.flexGrow = "0";
+              }
+            });
+          }, 0);
+        }
+      }
+
+      // ✅ Map clicked item ID to corresponding toy image ID in toys-above divs
+      const itemIdMap = {
+        "train": "train-toy",
+        "hore": "hore-toy",
+        "dino": "dino-toy",
+        "house": "house-toy",
+        "ball": "ball-toy",
+        "duck": "duck-toy",
+        "roll": "roll-toy",
+        "ship": "ship-toy",
+        "fan": "fan-toy"
+      };
+
+      const toyImageId = itemIdMap[item.id] || `${item.id}-toy`;
+      const toyImageElement = document.getElementById(toyImageId);
+
+      // ✅ Get alt text from the clicked image or the corresponding toy image
+      let toyName = item.alt && item.alt.trim() !== "" ? item.alt : "";
+      if (!toyName && toyImageElement && toyImageElement.alt) {
+        toyName = toyImageElement.alt;
+      }
+      if (!toyName && item.id) {
+        // Use ID if alt is empty
+        toyName = item.id.charAt(0).toUpperCase() + item.id.slice(1);
+      }
+
+      // ✅ Display image in toys-above-self-A or toys-above-self-B (show image, hide text)
+      if (toyImageElement) {
+        // Show the image (display: block)
+        toyImageElement.style.display = "block";
+        
+        // Hide any existing text element if it exists
+        const toyTextId = `${toyImageId}-text`;
+        const toyTextElement = document.getElementById(toyTextId);
+        if (toyTextElement) {
+          toyTextElement.style.display = "none";
+        }
+      }
+
+      // ✅ LIP KE RELATIVE POSITION CALCULATE KARO
+      const lipRect = lipElement.getBoundingClientRect();
+      const shelfRect = shelfContainer.getBoundingClientRect();
+      
+      // Lip ka shelf ke andar relative position
+      const relativeX = lipRect.left - shelfRect.left;
+      const relativeY = lipRect.top - shelfRect.top;
+      
+      // Toy ka lip ke andar position
+      const toyPos = toyPositions[targetShelf][positionIndex];
+
+      const clone = item.cloneNode(true);
+      clone.dataset.originalIndex = index;
+      
       clone.style.position = "absolute";
-      // When placing a toy on a shelf, use percent-based coordinates for responsive placement
-      clone.style.left = `${shelfRect.width * pos.x}px`;
-      clone.style.top  = `${shelfRect.height * pos.y}px`;
-      clone.style.margin = "0";
-      clone.style.padding = "0";
-      clone.classList.remove("moving");
-      
-      // Remove all Tailwind classes and attributes that might interfere
-      clone.className = "";
-      clone.removeAttribute("data-shelf");
-      clone.removeAttribute("data-position");
-      clone.removeAttribute("class");
-      
-      // Reset all styles for shelf placement
+      // ✅ Final position = Lip position + Toy offset
+      clone.style.left = `${relativeX + toyPos.x}px`;
+      clone.style.top = `${relativeY + toyPos.y}px`;
+
+      const toySizes = getToySizes();
+      clone.style.width = toySizes[index] || `${100 * toyPositions.scale}px`;
+      clone.style.height = "auto";
       clone.style.zIndex = "1";
-      clone.style.opacity = "1";
-      clone.style.transform = "none";
-      clone.style.display = "block";
-      clone.style.cursor = "default";
       clone.style.pointerEvents = "none";
-      clone.style.visibility = "visible";
-      clone.style.transition = "none";
-      
-      // Add to shelf container immediately
+      clone.style.opacity = "1";
+      clone.style.transition = "all 0.3s ease";
+
       shelfContainer.appendChild(clone);
+
+      if (placedItems.size === items.length) {
+        console.log("✅ All toys placed!");
+        for (let i = 9; i <= 16; i++) audioQueue.push(i);
+        playNextAudio();
+      }
     });
   });
 
-  // Home button navigation
   const homeBtn = document.getElementById("home");
   if (homeBtn) {
     homeBtn.addEventListener("click", () => {
       window.location.href = "main.html";
     });
   }
-
-  // Optional: Reset functionality (can add a reset button if needed)
-  function resetSimulation() {
-    placedItems.clear();
-    items.forEach(item => {
-      item.style.display = "";
-      item.style.animation = "";
-      item.style.zIndex = "";
-      item.classList.remove("moving");
-    });
-    shelfA.innerHTML = "";
-    shelfB.innerHTML = "";
-  }
 });
+
+function showPlayAgainPage() {
+  const overlay = document.createElement("div");
+  overlay.style.position = "fixed";
+  overlay.style.top = "0";
+  overlay.style.left = "0";
+  overlay.style.width = "100%";
+  overlay.style.height = "100%";
+  overlay.style.background = "transparent";
+  overlay.style.display = "flex";
+  overlay.style.justifyContent = "center";
+  overlay.style.alignItems = "center";
+  overlay.style.zIndex = "10";
+  overlay.style.pointerEvents = "none";
+  document.body.appendChild(overlay);
+
+  const box = document.createElement("div");
+  box.style.pointerEvents = "auto";
+  box.style.width = "30%";
+  box.style.minWidth = "320px";
+  box.style.aspectRatio = "1 / 1";
+  box.style.background = "linear-gradient(135deg, #ff7e00, #ffc300, #ffe766)";
+  box.style.borderRadius = "30px";
+  box.style.boxShadow = "0 8px 25px rgba(0,0,0,0.4)";
+  box.style.display = "flex";
+  box.style.flexDirection = "column";
+  box.style.justifyContent = "center";
+  box.style.alignItems = "center";
+  box.style.color = "#fff";
+  box.style.fontFamily = "'Comic Sans MS', cursive, sans-serif";
+  box.style.fontSize = "28px";
+  box.style.transform = "scale(0)";
+  box.style.transition = "transform 0.5s ease";
+  overlay.appendChild(box);
+
+  const title = document.createElement("h2");
+  title.innerText = "Great Job! 🎉";
+  title.style.marginBottom = "20px";
+  title.style.textShadow = "2px 2px 5px rgba(0,0,0,0.3)";
+  box.appendChild(title);
+
+  const btn = document.createElement("button");
+  btn.innerText = "Play Again";
+  btn.style.padding = "15px 40px";
+  btn.style.fontSize = "22px";
+  btn.style.border = "none";
+  btn.style.borderRadius = "50px";
+  btn.style.background = "linear-gradient(90deg, #692517ff, #8e5144ff)";
+  btn.style.color = "white";
+  btn.style.cursor = "pointer";
+  btn.style.boxShadow = "0 4px 15px rgba(0,0,0,0.3)";
+  btn.style.transition = "all 0.3s ease";
+  btn.addEventListener("mouseover", () => {
+    btn.style.transform = "scale(1.1)";
+    btn.style.boxShadow = "0 6px 20px rgba(255,165,0,0.6)";
+  });
+  btn.addEventListener("mouseout", () => {
+    btn.style.transform = "scale(1)";
+    btn.style.boxShadow = "0 4px 15px rgba(0,0,0,0.3)";
+  });
+  btn.addEventListener("click", () => location.reload());
+  box.appendChild(btn);
+
+  setTimeout(() => {
+    box.style.transform = "scale(1)";
+  }, 100);
+}
