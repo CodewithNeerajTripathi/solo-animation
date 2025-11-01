@@ -1,4 +1,44 @@
 document.addEventListener("DOMContentLoaded", () => {
+  // ✅ Check orientation and show rotate message for portrait mode
+  const rotateMessage = document.getElementById("rotate-message");
+  const mainContent = document.querySelector(".main");
+
+  function checkOrientation() {
+    const isPortrait = window.innerHeight > window.innerWidth;
+    const isMobile = window.innerWidth <= 767;
+
+    if (isMobile && isPortrait) {
+      // Portrait mode on mobile - show rotate message
+      if (rotateMessage) {
+        rotateMessage.classList.add("show");
+      }
+      if (mainContent) {
+        mainContent.style.display = "none";
+      }
+    } else {
+      // Landscape mode or desktop - hide rotate message
+      if (rotateMessage) {
+        rotateMessage.classList.remove("show");
+      }
+      if (mainContent) {
+        mainContent.style.display = "block";
+      }
+    }
+  }
+
+  // Check on load
+  checkOrientation();
+
+  // Check on orientation change
+  window.addEventListener("orientationchange", () => {
+    setTimeout(checkOrientation, 100); // Small delay for orientation to update
+  });
+
+  // Also check on resize (for devices that don't fire orientationchange)
+  window.addEventListener("resize", () => {
+    checkOrientation();
+  });
+
   const items = document.querySelectorAll(".items img");
   const shelfA = document.querySelector(".shelfi-A .shelf-items");
   const shelfB = document.querySelector(".shelfi-B .shelf-items");

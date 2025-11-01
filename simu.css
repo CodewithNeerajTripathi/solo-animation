@@ -9,6 +9,59 @@ body {
   /* overflow: hidden; */
 }
 
+/* Rotate Phone Message */
+.rotate-message {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.95);
+  display: none;
+  justify-content: center;
+  align-items: center;
+  z-index: 10000;
+  flex-direction: column;
+}
+
+.rotate-message.show {
+  display: flex;
+}
+
+.rotate-message-content {
+  text-align: center;
+  color: white;
+  padding: 5%;
+  max-width: 90%;
+}
+
+.rotate-icon {
+  font-size: 80px;
+  margin-bottom: 30px;
+  animation: rotate 2s infinite ease-in-out;
+}
+
+@keyframes rotate {
+  0%, 100% {
+    transform: rotate(0deg);
+  }
+  50% {
+    transform: rotate(90deg);
+  }
+}
+
+.rotate-message-content h2 {
+  font-size: 28px;
+  margin-bottom: 20px;
+  font-family: sans-serif;
+}
+
+.rotate-message-content p {
+  font-size: 18px;
+  line-height: 1.6;
+  font-family: sans-serif;
+}
+
 
 
 /* ICONS */
@@ -833,3 +886,390 @@ body {
     font-size: 0.75rem;
   }
 } */
+
+/* ===================================================== */
+/* 📱 ROTATE MESSAGE - Portrait Mode */
+/* ===================================================== */
+@media (max-width: 767px) and (orientation: portrait) {
+  .rotate-message {
+    display: flex !important;
+  }
+  
+  .main {
+    display: none;
+  }
+  
+  .rotate-icon {
+    font-size: 15vw;
+    margin-bottom: 5%;
+  }
+  
+  .rotate-message-content h2 {
+    font-size: 6vw;
+    margin-bottom: 3%;
+  }
+  
+  .rotate-message-content p {
+    font-size: 4vw;
+  }
+}
+
+/* ===================================================== */
+/* 📱 MOBILE RESPONSIVE: Below 768px - Landscape Mode */
+/* ===================================================== */
+@media (max-width: 767px) and (orientation: landscape) {
+  /* Icons Section - Compact for landscape */
+  .icon {
+    padding: 1% 2%;
+    flex-wrap: nowrap;
+  }
+
+  .icon-left {
+    gap: 1.5%;
+  }
+
+  .icon-left img {
+    width: 6%;
+    height: auto;
+    padding: 0.8%;
+    min-width: 30px;
+    max-width: 40px;
+  }
+
+  #logo {
+    height: 5%;
+    max-width: 35%;
+    min-height: 30px;
+    max-height: 40px;
+  }
+
+  /* Shelf Section - Horizontal layout for landscape */
+  .shelf {
+    flex-direction: row;
+    padding: 0 3%;
+    margin-top: 1%;
+    gap: 2%;
+    align-items: flex-start;
+    justify-content: space-between;
+  }
+
+  .shelfi-A, .shelfi-B {
+    width: 48%;
+    max-width: 48%;
+  }
+
+  .shelf-body {
+    width: 85%;
+  }
+
+  .shelf-body-1 {
+    width: 85%;
+  }
+
+  .lip {
+    width: 85%;
+  }
+
+  /* Toys above shelves */
+  .toys-above-self-A,
+  .toys-above-self-B {
+    margin-top: 10%;
+    height: 70%;
+  }
+
+  .toys-above-self-A-1,
+  .toys-above-self-A-2
+  {
+    gap: 5%;
+    /* border:2px solid red; */
+    margin-top: 6%;
+  }
+  .toys-above-self-B-1,
+  .toys-above-self-B-2{
+    gap: 5%;
+    margin-top: 8%;
+    /* border: 2px solid red; */
+  }
+
+  #train-toy,  #dino-toy, #house-toy, #ball-toy,
+  #duck-toy, #roll-toy, #fan-toy {
+    width: 20%;
+  }
+  #hore-toy, #ship-toy{
+    width: 30%;
+  }
+
+  /* Content Section - Compact for landscape */
+  .cont {
+    position: relative;
+    left: 0;
+    top: 1%;
+    width: 100%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    flex-direction: column;
+  }
+
+  .more, .less {
+    width: 50%;
+    max-width: 60%;
+  }
+
+  /* Items Section - Toys at bottom - Compact for landscape */
+  .items {
+    margin-top: 1.5%;
+    margin-bottom: 1%;
+    gap: 1%;
+    min-height: 12vh;
+  }
+
+  .items-img-A {
+    position: absolute;
+    margin-bottom: 20%;
+    gap: 5%;
+    flex-wrap: nowrap;
+    /* border:2px solid blue; */
+  }
+
+  .items-img-B {
+    position: absolute;
+    margin-bottom: 11%;
+    gap: 5%;
+    flex-wrap: nowrap;
+    height: auto;
+  }
+
+  .items-img-C {
+    position: absolute;
+    /* border:2px solid green; */
+    margin-left: 13%;
+    margin-bottom: 8%;
+    display: flex;
+    width: 10%;
+    justify-content: end;
+
+    justify-content: center;
+    height: auto;
+  }
+
+  .items-img-D {
+    position: absolute;
+    margin-left:65%;
+    margin-bottom: 5%;
+    width: 50%;
+    justify-content: center;
+    height: auto;
+  }
+
+  /* Individual toy images - responsive sizes for landscape */
+  .items img {
+    width: 12% !important;
+    min-width: 7vw;
+    max-width: 10vw;
+    flex-shrink: 0;
+    flex-grow: 0;
+  }
+
+  #train {
+    width: 12% !important;
+    min-width: 7vw;
+    max-width: 9vw;
+  }
+
+  #hore {
+    width: 14% !important;
+    min-width: 8vw;
+    max-width: 11vw;
+  }
+
+  #dino {
+    width: 16% !important;
+    min-width: 9vw;
+    max-width: 12vw;
+  }
+
+  #house {
+    width: 10% !important;
+    min-width: 6vw;
+    max-width: 8vw;
+    margin-left: 0;
+  }
+
+  #ball {
+    width: 12% !important;
+    min-width: 7vw;
+    max-width: 9vw;
+  }
+
+  #duck {
+    width: 12% !important;
+    min-width: 7vw;
+    max-width: 9vw;
+  }
+
+  #roll {
+    width: 14% !important;
+    min-width: 8vw;
+    max-width: 11vw;
+  }
+
+  #ship {
+    width: 13% !important;
+    min-width: 8vw;
+    max-width: 10vw;
+  }
+
+  #fan {
+    width: 10% !important;
+    min-width: 6vw;
+    max-width: 8vw;
+  }
+
+  /* Hover effect - slightly reduced for mobile */
+  .items img:hover {
+    transform: scale(1.1);
+  }
+
+  /* Text Section - Compact for landscape */
+  .text {
+    margin-top: 5%;
+    padding: 0 5%;
+    font-size: 0.55rem;
+    text-align: center;
+  }
+
+  /* Subtitle styling for mobile landscape */
+  .subtitle-text {
+    font-size: 3.5vw !important;
+    padding: 1.5% 3% !important;
+    max-width: 85%;
+    word-wrap: break-word;
+  }
+  
+  /* Hide rotate message in landscape */
+  .rotate-message {
+    display: none !important;
+  }
+}
+
+/* ===================================================== */
+/* 📱 SMALL MOBILE RESPONSIVE: Below 480px - Landscape */
+/* ===================================================== */
+@media (max-width: 479px) and (orientation: landscape) {
+  /* Icons - Compact for small landscape */
+  .icon {
+    padding: 1% 1.5%;
+  }
+
+  .icon-left img {
+    width: 5%;
+    height: auto;
+    min-width: 28px;
+    max-width: 35px;
+  }
+
+  #logo {
+    height: 4%;
+    max-width: 30%;
+    min-height: 28px;
+    max-height: 35px;
+  }
+
+  /* Shelf - Horizontal for landscape */
+  .shelf {
+    padding: 0 2%;
+    margin-top: 1%;
+    flex-direction: row;
+    gap: 1.5%;
+  }
+
+  .shelfi-A, .shelfi-B {
+    width: 49%;
+  }
+
+  .shelf-body,
+  .shelf-body-1 {
+    width: 88%;
+  }
+
+  .lip {
+    width: 88%;
+  }
+
+  /* Items - Compact for small landscape */
+  .items img {
+    width: 14% !important;
+    min-width: 8vw;
+    max-width: 11vw;
+  }
+
+  #train, #ball {
+    width: 12% !important;
+    min-width: 7vw;
+    max-width: 10vw;
+  }
+
+  #hore {
+    width: 14% !important;
+    min-width: 8vw;
+    max-width: 12vw;
+  }
+
+  #dino {
+    width: 18% !important;
+    min-width: 10vw;
+    max-width: 14vw;
+  }
+
+  #house, #fan {
+    width: 11% !important;
+    min-width: 6vw;
+    max-width: 9vw;
+  }
+
+  #ball, #duck {
+    width: 12% !important;
+    min-width: 7vw;
+    max-width: 10vw;
+  }
+
+  #roll {
+    width: 15% !important;
+    min-width: 9vw;
+    max-width: 13vw;
+  }
+
+  #ship {
+    width: 14% !important;
+    min-width: 8vw;
+    max-width: 11vw;
+  }
+
+  /* Content */
+  .more, .less {
+    width: 45%;
+    max-width: 55%;
+  }
+
+  /* Text */
+  .text {
+    font-size: 0.48rem;
+    padding: 0 3%;
+    margin-top: 1%;
+  }
+.items-img-A{
+  /* margin-bottom: 0; */
+  border:2px solid red;
+}
+  /* Subtitle */
+  .subtitle-text {
+    font-size: 3vw !important;
+    padding: 1% 2.5% !important;
+  }
+  
+  /* Hide rotate message in landscape */
+  .rotate-message {
+    display: none !important;
+  }
+}
