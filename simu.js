@@ -148,20 +148,20 @@ document.addEventListener("DOMContentLoaded", () => {
   // ✅ Subtitle system - Add your custom text for each audio here
   const audioSubtitles = {
     1: "Welcome to the toy shelf!",
-    2: "",
-    3: "",
-    4: "Hello start 1",
-    5: "the end 1",
-    6: "",
-    7: "",
-    8: "",
-    9: "Hello guys 3",
-    10: "Hello start 2",
-    11: "Hello guys",
-    12: "the end",
-    13: "",
-    14: "",
-    15: "",
+    2: "Let's organize our toys together.",
+    3: "There are two shelves waiting for toys.",
+    4: "Look at the empty shelves above",
+    5: "Click on any toy below to place it on the shelf",
+    6: "Great! Let's keep organizing.",
+    7: "You're doing an amazing job!",
+    8: "Keep going, almost there!",
+    9: "Excellent placement!",
+    10: "More toys are waiting for you",
+    11: "Keep organizing the toys",
+    12: "Wonderful work!",
+    13: "You're a great helper!",
+    14: "All toys are being organized perfectly",
+    15: "Almost finished!",
     16: "Great job completing the activity!"
   };
 
@@ -195,6 +195,7 @@ document.addEventListener("DOMContentLoaded", () => {
   let isPlayingAudio = false;
   let toysClickable = false;
   const audioQueue = [];
+  let typewriterTimeout = null;
 
   function disableToyClicks() {
     toysClickable = false;
@@ -214,6 +215,27 @@ document.addEventListener("DOMContentLoaded", () => {
     });
   }
 
+  // ✅ Typing animation function
+  function typeText(element, text, speed = 50) {
+    // Clear any existing timeout
+    if (typewriterTimeout) {
+      clearTimeout(typewriterTimeout);
+    }
+    
+    element.textContent = "";
+    let index = 0;
+    
+    function type() {
+      if (index < text.length) {
+        element.textContent += text.charAt(index);
+        index++;
+        typewriterTimeout = setTimeout(type, speed);
+      }
+    }
+    
+    type();
+  }
+
   function playNextAudio() {
     if (isPlayingAudio || audioQueue.length === 0) return;
     const audioNum = audioQueue.shift();
@@ -223,17 +245,20 @@ document.addEventListener("DOMContentLoaded", () => {
     const audio = new Audio(`./audio/${String(audioNum).padStart(2, "0")}.mp3`);
     console.log("🎵 Playing audio:", audioNum);
 
-    // ✅ Show subtitle text when audio starts
+    // ✅ Show subtitle text when audio starts with typing animation
     if (subtitleElement && audioSubtitles[audioNum] && audioSubtitles[audioNum].trim() !== "") {
-      subtitleElement.textContent = audioSubtitles[audioNum];
       subtitleElement.style.opacity = "1";
+      typeText(subtitleElement, audioSubtitles[audioNum], 30);
     }
 
-    // ✅ Update .click element with audio subtitle text
+    // ✅ Update .click element with audio subtitle text with typing animation
     if (clickImg && audioSubtitles[audioNum] && audioSubtitles[audioNum].trim() !== "") {
-      clickImg.textContent = audioSubtitles[audioNum];
       clickImg.style.display = "block";
       clickImg.style.opacity = "1";
+      // Note: clickImg might be an image element, so we'll check if it has textContent property
+      if (clickImg.textContent !== undefined) {
+        typeText(clickImg, audioSubtitles[audioNum], 30);
+      }
     }
 
     switch (audioNum) {

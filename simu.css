@@ -183,7 +183,7 @@ body {
   display: none;
 }
 #hore-toy {
-  width: 33%;
+  width: 40%;
   display: none;
 }
 #dino-toy {
@@ -207,7 +207,7 @@ body {
   display: none;
 }
 #ship-toy {
-  width: 26%;
+  width: 33%;
   display: none;
 }
 #fan-toy {
@@ -265,7 +265,7 @@ body {
 .items-img-B{
   display: flex;
   position: absolute;
-  z-index: 2;
+  /* z-index: 2; */
   opacity: 1;
   /* border:3px solid red; */
   justify-content: center;
@@ -283,19 +283,40 @@ body {
   right: 0;
 }
 .items-img-C{
-
   display: flex;
   position: absolute;
   z-index: 2;
   opacity: 1;
-  justify-content: space-between;
+  justify-content: center;
+  align-items: center;
+  /* gap: 10%; */
+  /* border: 5px solid green; */
+  margin-left: 23%;
+  margin-top: 2%;
+  height: 16%;
+
+  width: 8%;
+  min-width: 4%;
+  max-width: 30%;
+  left: 0;
+  right: 0;
+  /* border:2px solid red; */
+  z-index: 2; 
+}
+
+.items-img-D{
+  display: flex;
+  position: absolute;
+  z-index: 2;
+  width: 10%;
+  height: 16%;
+  margin-left: 46%;
+  margin-top: 2%;
+  opacity: 1;
+  /* border:2px solid blue; */
+  justify-content: center;
   align-items: center;
   gap: 10%;
-  /* border: 5px solid green; */
-  margin-top: 2%;
-  width: 50%;
-  
-    z-index: 2; 
 }
 
 .items img {
@@ -323,11 +344,11 @@ body {
   max-width: 11%;
 }
 #dino {
-  width: 15% !important;
+  width: 83% !important;
   min-width: 15%;
   flex-shrink: 0 !important;
   flex-grow: 0 !important;
-  max-width: 15%;
+  max-width: 85%;
 }
 #house {
   width: 6% !important;
@@ -352,11 +373,11 @@ body {
   max-width: 7%;
 }
 #roll {
-  width: 12% !important;
+  width: 60% !important;
   min-width: 12%;
   flex-shrink: 0 !important;
   flex-grow: 0 !important;
-  max-width: 12%;
+  max-width: 80%;
 }
 #ship {
   width: 10% !important;
