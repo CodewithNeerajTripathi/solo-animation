@@ -1,242 +1,288 @@
+// simu.js - Clean JavaScript Logic
+// All styles moved to CSS, structure to HTML
+
 document.addEventListener("DOMContentLoaded", () => {
-  // ✅ Check orientation and show rotate message for portrait mode
+  
+  /* ========================================
+     ELEMENT REFERENCES
+     ======================================== */
   const rotateMessage = document.getElementById("rotate-message");
   const mainContent = document.querySelector(".main");
-
-  function checkOrientation() {
-    const isPortrait = window.innerHeight > window.innerWidth;
-    const isMobile = window.innerWidth <= 767;
-
-    if (isMobile && isPortrait) {
-      // Portrait mode on mobile - show rotate message
-      if (rotateMessage) {
-        rotateMessage.classList.add("show");
-      }
-      if (mainContent) {
-        mainContent.style.display = "none";
-      }
-    } else {
-      // Landscape mode or desktop - hide rotate message
-      if (rotateMessage) {
-        rotateMessage.classList.remove("show");
-      }
-      if (mainContent) {
-        mainContent.style.display = "block";
-      }
-    }
-  }
-
-  // Check on load
-  checkOrientation();
-
-  // Check on orientation change
-  window.addEventListener("orientationchange", () => {
-    setTimeout(checkOrientation, 100); // Small delay for orientation to update
-  });
-
-  // Also check on resize (for devices that don't fire orientationchange)
-  window.addEventListener("resize", () => {
-    checkOrientation();
-  });
-
-  const items = document.querySelectorAll(".items img");
-  const shelfA = document.querySelector(".shelfi-A .shelf-items");
-  const shelfB = document.querySelector(".shelfi-B .shelf-items");
-  const lipA = document.querySelector(".shelfi-A .lip"); // ✅ Lip A reference
-  const lipB = document.querySelector(".shelfi-B .lip"); // ✅ Lip B reference
-
-  console.log("Items found:", items.length);
-
-  const placedItems = new Set();
-
-  // ✅ Hide all images in toys-above-self-A and toys-above-self-B by default
-  const allToyImages = document.querySelectorAll(".toys-above-self-A img, .toys-above-self-B img");
-  allToyImages.forEach(img => {
-    img.style.display = "none";
-  });
-
-  // ✅ LIP-RELATIVE POSITIONS - Lip ke ANDAR ke coordinates
-  function getToyPositionsRelativeToLip() {
-    const screenWidth = window.innerWidth;
-    
-    let scale = 1;
-    if (screenWidth <= 1400 && screenWidth >= 1200) {
-      scale = 0.87;
-    } else if (screenWidth < 1200 && screenWidth >= 1024) {
-      scale = 0.75;
-    } else if (screenWidth < 1024 && screenWidth >= 768) {
-      scale = 0.62;
-    } else if (screenWidth < 768) {
-      scale = 0.48;
-    }
-
-    // ✅ Shelf A - Top shelf positions (lip ke andar perfectly fit)
-    // ✅ Shelf B - Bottom shelf positions (lip ke andar perfectly fit)
-    return {
-      scale: scale,
-      A: [
-        { x: 40 * scale, y: 100 * scale },    // Train - top shelf left
-        { x: 180 * scale, y: 70 * scale },   // Horse - top shelf center-right
-        { x: 40 * scale, y: 250 * scale },   // Dino - bottom shelf left
-        { x: 175 * scale, y: 278 * scale },  // House - bottom shelf center
-        { x: 300 * scale, y: 255 * scale },  // Ball - bottom shelf right
-      ],
-      B: [
-        { x: 15 * scale, y: 80 * scale },    // Duck - top shelf left
-        { x: 210 * scale, y: 90 * scale },   // Roll - top shelf right
-        { x: 20 * scale, y: 270 * scale },   // Ship - bottom shelf left
-        { x: 220 * scale, y: 290 * scale },  // Fan - bottom shelf right
-      ]
-    };
-  }
-
-  let toyPositions = getToyPositionsRelativeToLip();
-
-  // ✅ Resize handler
-  let resizeTimer;
-  window.addEventListener('resize', () => {
-    clearTimeout(resizeTimer);
-    resizeTimer = setTimeout(() => {
-      console.log('🔄 Screen resized - updating positions...');
-      toyPositions = getToyPositionsRelativeToLip();
-      updatePlacedItemsPositions();
-    }, 200);
-  });
-
-  // ✅ Update placed items based on LIP position
-  function updatePlacedItemsPositions() {
-    const toySizes = getToySizes();
-    
-    // Shelf A items
-    const shelfAItems = shelfA.querySelectorAll('img');
-    shelfAItems.forEach((clone, idx) => {
-      if (toyPositions.A[idx] && lipA) {
-        const lipRect = lipA.getBoundingClientRect();
-        const shelfRect = shelfA.getBoundingClientRect();
-        
-        // ✅ Lip ke relative position calculate karo
-        const relativeX = lipRect.left - shelfRect.left;
-        const relativeY = lipRect.top - shelfRect.top;
-        
-        clone.style.left = `${relativeX + toyPositions.A[idx].x}px`;
-        clone.style.top = `${relativeY + toyPositions.A[idx].y}px`;
-        
-        const originalIndex = parseInt(clone.dataset.originalIndex);
-        if (!isNaN(originalIndex) && toySizes[originalIndex]) {
-          clone.style.width = toySizes[originalIndex];
-        }
-      }
-    });
-
-    // Shelf B items
-    const shelfBItems = shelfB.querySelectorAll('img');
-    shelfBItems.forEach((clone, idx) => {
-      if (toyPositions.B[idx] && lipB) {
-        const lipRect = lipB.getBoundingClientRect();
-        const shelfRect = shelfB.getBoundingClientRect();
-        
-        const relativeX = lipRect.left - shelfRect.left;
-        const relativeY = lipRect.top - shelfRect.top;
-        
-        clone.style.left = `${relativeX + toyPositions.B[idx].x}px`;
-        clone.style.top = `${relativeY + toyPositions.B[idx].y}px`;
-        
-        const originalIndex = parseInt(clone.dataset.originalIndex);
-        if (!isNaN(originalIndex) && toySizes[originalIndex]) {
-          clone.style.width = toySizes[originalIndex];
-        }
-      }
-    });
-  }
-
-  // ✅ Dynamic toy sizes - proper sizing to avoid overlap
-  function getToySizes() {
-    const scale = toyPositions.scale;
-    return {
-      0: `${85 * scale}px`,   // Train - reduced size
-      1: `${115 * scale}px`,  // Horse - reduced size
-      2: `${95 * scale}px`,   // Dino - reduced size
-      3: `${95 * scale}px`,   // House - reduced size
-      4: `${85 * scale}px`,   // Ball - reduced size
-      5: `${140 * scale}px`,  // Duck - reduced size
-      6: `${110 * scale}px`,  // Roll - reduced size
-      7: `${140 * scale}px`,  // Ship - reduced size
-      8: `${105 * scale}px`,  // Fan - reduced size
-    };
-  }
-
-  // ✅ Instruction & image elements
-  const instruction = document.querySelector(".cont h1");
+  const items = Array.from(document.querySelectorAll(".items img"));
+  const allToyImages = Array.from(document.querySelectorAll(".toys-above-self-A img, .toys-above-self-B img"));
+  const contElement = document.querySelector(".cont");
   const miloImg = document.querySelector(".milo");
   const clickImg = document.querySelector(".click");
   const img4 = document.querySelector(".img4");
   const img5 = document.querySelector(".img5");
   const moreImg = document.querySelector(".more");
   const lessImg = document.querySelector(".less");
+  const homeBtn = document.getElementById("home");
+  const musicBtn = document.getElementById("musi");
+  const infoBtn = document.getElementById("info");
+  const iconLeftImages = Array.from(document.querySelectorAll(".icon-left img"));
+  const bottomArrow = document.getElementById("bottom-arrow");
 
-  [miloImg, clickImg, img4, img5, moreImg, lessImg].forEach(img => {
-    if (img) img.style.display = "none";
-  });
-  if (instruction) instruction.style.opacity = "0";
-  
-  // ✅ Initialize .click element - hide by default
+  /* ========================================
+     INITIAL SETUP - HIDE ELEMENTS
+     ======================================== */
+  allToyImages.forEach(img => img.style.display = "none");
+  if (miloImg) miloImg.style.display = "none";
   if (clickImg) {
     clickImg.style.display = "none";
     clickImg.style.opacity = "0";
   }
+  if (img4) img4.style.display = "none";
+  if (img5) img5.style.display = "none";
+  if (moreImg) moreImg.style.display = "none";
+  if (lessImg) lessImg.style.display = "none";
 
-  // ✅ Subtitle system - Add your custom text for each audio here
-  const audioSubtitles = {
-    1: "Welcome to the toy shelf!",
-    2: "Let's organize our toys together.",
-    3: "There are two shelves waiting for toys.",
-    4: "Look at the empty shelves above",
-    5: "Click on any toy below to place it on the shelf",
-    6: "Great! Let's keep organizing.",
-    7: "You're doing an amazing job!",
-    8: "Keep going, almost there!",
-    9: "Excellent placement!",
-    10: "More toys are waiting for you",
-    11: "Keep organizing the toys",
-    12: "Wonderful work!",
-    13: "You're a great helper!",
-    14: "All toys are being organized perfectly",
-    15: "Almost finished!",
-    16: "Great job completing the activity!"
-  };
-
-  // ✅ Create subtitle element in .cont
-  const contElement = document.querySelector(".cont");
-  let subtitleElement = null;
-  if (contElement) {
-    subtitleElement = document.createElement("div");
-    subtitleElement.className = "subtitle-text";
-    subtitleElement.style.cssText = `
-      position: absolute;
-      top: 50%;
-      left: 50%;
-      transform: translate(-50%, -50%);
-      color: #333;
-      font-size: 28px;
-      font-weight: bold;
-      text-align: center;
-      opacity: 0;
-      transition: opacity 0.3s ease;
-      pointer-events: none;
-      z-index: 100;
-      background: rgba(255, 255, 255, 0.9);
-      padding: 15px 30px;
-      border-radius: 10px;
-      box-shadow: 0 4px 15px rgba(0,0,0,0.2);
-    `;
-    contElement.appendChild(subtitleElement);
+  /* ========================================
+     AUDIO SUBTITLES - LINE BY LINE (HTML elements)
+     ======================================== */
+  function getAudioSubtitles(audioNum) {
+    switch(audioNum) {
+      case 1:
+        return {
+          0: "subtitle-1",
+          1: "subtitle-1-line2"
+        };
+      case 2:
+        return {
+          0: "subtitle-2",
+          1: "subtitle-2-line2"
+        };
+      case 3:
+        return {
+          0: "subtitle-3",
+          1: "subtitle-3-line2",
+          2: "subtitle-3-line3"
+        };
+      case 4:
+        return {
+          0: "subtitle-4",
+          1: "subtitle-4-line2"
+        };
+      case 5:
+        return {
+          0: "subtitle-5"
+        };
+      case 6:
+        return {
+          0: "subtitle-6"
+        };
+      case 7:
+        return {
+          0: "subtitle-7"
+        };
+      case 8:
+        return {
+          0: "subtitle-8"
+        };
+      case 9:
+        return {
+          0: "subtitle-9",
+          1: "subtitle-9-line2"
+        };
+      case 10:
+        return {
+          0: "subtitle-10",
+          1: "subtitle-10-line2"
+        };
+      case 11:
+        return {
+          0: "subtitle-11",
+          1: "subtitle-11-line2"
+        };
+      case 12:
+        return {
+          0: "subtitle-12"
+        };
+      default:
+        return {};
+    }
   }
 
+  /* ========================================
+     STATE VARIABLES
+     ======================================== */
+  const placedItems = new Set();
+  const audioQueue = [];
   let isPlayingAudio = false;
   let toysClickable = false;
-  const audioQueue = [];
-  let typewriterTimeout = null;
+  let currentAudioElement = null;
+  let subtitleIntervalId = null;
+  let started = false;
+  let endSequenceStarted = false;
+  
+  // Background Music - Now using shared audio-manager.js
+  // The audio-manager.js handles music for all pages
+  let backgroundMusic = null;
+  let isMusicMuted = false;
 
+  /* ========================================
+     ORIENTATION CHECK (MOBILE)
+     ======================================== */
+  function checkOrientation() {
+    const isPortrait = window.innerHeight > window.innerWidth;
+    const isMobile = window.innerWidth <= 767;
+    
+    if (isMobile && isPortrait) {
+      if (rotateMessage) rotateMessage.classList.add("show");
+      if (mainContent) mainContent.style.display = "none";
+    } else {
+      if (rotateMessage) rotateMessage.classList.remove("show");
+      if (mainContent) mainContent.style.display = "block";
+    }
+  }
+  
+  checkOrientation();
+  window.addEventListener("resize", checkOrientation);
+
+  /* ========================================
+     BACKGROUND MUSIC SETUP
+     ======================================== */
+  function setupBackgroundMusic() {
+    // Use shared audio manager if available (audio-manager.js handles music now)
+    if (window.audioManager && window.audioManager.getMusic) {
+      backgroundMusic = window.audioManager.getMusic();
+      isMusicMuted = !window.audioManager.getState();
+    } else {
+      // Fallback: create our own only if audio-manager didn't load
+      // This should rarely happen since audio-manager.js loads before simu.js
+      backgroundMusic = new Audio("./audio/Main-version.wav");
+      backgroundMusic.loop = true;
+      backgroundMusic.volume = 0.3; // Match audio-manager volume
+    }
+  }
+  
+  // Initialize background music
+  setupBackgroundMusic();
+  
+  // Music button toggle - now handled by audio-manager.js
+  // We don't need to add click listener here since audio-manager.js handles it
+
+  /* ========================================
+     HELPER: TOGGLE SPECIAL IMAGES
+     ======================================== */
+  function toggleImagesOnAudio(audioNum, show) {
+    const imageMap = {
+      9: img5,
+      10: img4,
+      11: moreImg,
+      12: lessImg
+    };
+    
+    const img = imageMap[audioNum];
+    if (img) {
+      img.style.display = show ? "block" : "none";
+    }
+  }
+
+  /* ========================================
+     HELPER: RESIZE REMAINING TOYS
+     ======================================== */
+  function resizeRemainingItems(containerClass) {
+    const container = document.querySelector(containerClass);
+    if (!container) return;
+    
+    const remaining = Array.from(container.querySelectorAll("img"))
+      .filter(img => img.style.display !== "none");
+    const remainingCount = remaining.length || 1;
+    const vw = window.innerWidth;
+    
+    remaining.forEach(img => {
+      const sizeMap = {
+        "duck": 7, "hore": 11, "house": 6, "train": 7,
+        "ship": 10, "ball": 7, "fan": 6, "roll": 8, "dino": 8
+      };
+      
+      const percent = sizeMap[img.id] || Math.max(6, Math.min(12, Math.round(100 / remainingCount)));
+      const px = Math.round((vw * percent) / 100);
+      
+      img.style.width = `${px}px`;
+      img.style.minWidth = `${px}px`;
+      img.style.maxWidth = `${px}px`;
+      img.style.flexShrink = "0";
+      img.style.flexGrow = "0";
+    });
+  }
+
+  /* ========================================
+     DISPLAY SUBTITLE (INSTANT)
+     ======================================== */
+  function displaySubtitle(className) {
+    const element = document.querySelector(`.${className}`);
+    if (element) {
+      element.style.setProperty("display", "flex", "important");
+      element.classList.add("show");
+      // Force a reflow to ensure CSS transition works
+      void element.offsetHeight;
+    }
+  }
+
+  /* ========================================
+     HIDE SUBTITLE (SMOOTH)
+     ======================================== */
+  function hideSubtitle() {
+    // Hide all subtitle elements
+    const allSubtitles = document.querySelectorAll('.subtitle-text');
+    allSubtitles.forEach(sub => {
+      sub.classList.remove("show");
+      sub.style.setProperty("display", "none", "important");
+    });
+  }
+
+  /* ========================================
+     SHOW SUBTITLES SYNCED WITH AUDIO
+     ======================================== */
+  function showSubtitlesWithAudio(lines, audioDuration) {
+    const linesCount = Object.keys(lines).length;
+    if (!lines || linesCount === 0) return;
+    
+    // Clear any existing interval
+    if (subtitleIntervalId) {
+      clearInterval(subtitleIntervalId);
+      subtitleIntervalId = null;
+    }
+    
+    // Hide all previous subtitles first
+    hideSubtitle();
+    
+    // Calculate time per line - har line ko equal time
+    const timePerLine = (audioDuration * 1000) / linesCount; // milliseconds mein
+    
+    // Show first line immediately
+    displaySubtitle(lines[0]);
+    
+    // Schedule remaining lines with proper timing
+    if (linesCount > 1) {
+      let currentLineIndex = 1; // Start from second line (index 1)
+      
+      // Schedule each remaining line at equal intervals
+      subtitleIntervalId = setInterval(() => {
+        if (currentLineIndex < linesCount) {
+          // Hide previous line
+          if (currentLineIndex > 0) {
+            const prevElement = document.querySelector(`.${lines[currentLineIndex - 1]}`);
+            if (prevElement) {
+              prevElement.classList.remove("show");
+              prevElement.style.setProperty("display", "none", "important");
+            }
+          }
+          displaySubtitle(lines[currentLineIndex]);
+          currentLineIndex++;
+        } else {
+          clearInterval(subtitleIntervalId);
+          subtitleIntervalId = null;
+        }
+      }, timePerLine); // Already in milliseconds
+    }
+  }
+
+  /* ========================================
+     TOY CLICK CONTROLS
+     ======================================== */
   function disableToyClicks() {
     toysClickable = false;
     items.forEach(item => {
@@ -244,7 +290,7 @@ document.addEventListener("DOMContentLoaded", () => {
       item.style.cursor = "not-allowed";
     });
   }
-
+  
   function enableToyClicks() {
     toysClickable = true;
     items.forEach(item => {
@@ -255,373 +301,499 @@ document.addEventListener("DOMContentLoaded", () => {
     });
   }
 
-  // ✅ Typing animation function
-  function typeText(element, text, speed = 50) {
-    // Clear any existing timeout
-    if (typewriterTimeout) {
-      clearTimeout(typewriterTimeout);
-    }
-    
-    element.textContent = "";
-    let index = 0;
-    
-    function type() {
-      if (index < text.length) {
-        element.textContent += text.charAt(index);
-        index++;
-        typewriterTimeout = setTimeout(type, speed);
-      }
-    }
-    
-    type();
-  }
-
+  /* ========================================
+     AUDIO PLAYBACK LOGIC
+     ======================================== */
   function playNextAudio() {
     if (isPlayingAudio || audioQueue.length === 0) return;
+    
     const audioNum = audioQueue.shift();
-    if (audioNum > 16) return;
+    if (!audioNum || audioNum > 12) return;
+    
     isPlayingAudio = true;
-
     const audio = new Audio(`./audio/${String(audioNum).padStart(2, "0")}.mp3`);
-    console.log("🎵 Playing audio:", audioNum);
+    currentAudioElement = audio;
+    
+    const subtitleLines = getAudioSubtitles(audioNum);
+    
+    // Start subtitles when audio actually starts playing
+    audio.addEventListener('playing', () => {
+      const audioDuration = audio.duration;
+      const linesCount = Object.keys(subtitleLines || {}).length;
+      
+      if (subtitleLines && linesCount > 0 && audioDuration > 0 && isFinite(audioDuration)) {
+        showSubtitlesWithAudio(subtitleLines, audioDuration);
+      }
+    }, { once: true });
 
-    // ✅ Show subtitle text when audio starts with typing animation
-    if (subtitleElement && audioSubtitles[audioNum] && audioSubtitles[audioNum].trim() !== "") {
-      subtitleElement.style.opacity = "1";
-      typeText(subtitleElement, audioSubtitles[audioNum], 30);
-    }
-
-    // ✅ Update .click element with audio subtitle text with typing animation
-    if (clickImg && audioSubtitles[audioNum] && audioSubtitles[audioNum].trim() !== "") {
+    // Show clickImg overlay
+    if (clickImg && subtitleLines) {
       clickImg.style.display = "block";
       clickImg.style.opacity = "1";
-      // Note: clickImg might be an image element, so we'll check if it has textContent property
-      if (clickImg.textContent !== undefined) {
-        typeText(clickImg, audioSubtitles[audioNum], 30);
+      if (typeof clickImg.textContent !== "undefined") {
+        clickImg.textContent = Object.values(subtitleLines).join(" ");
       }
     }
 
-    switch (audioNum) {
-      case 4:
-        if (miloImg) miloImg.style.display = "block";
-        if (instruction) instruction.style.opacity = "1";
-        break;
-      case 5:
-        if (instruction) {
-          instruction.style.opacity = "1";
-          instruction.innerHTML = '<span style="color:red;font-weight:bold;">Click</span> the beds';
-        }
-        break;
-      case 9:
-        if (img5) img5.style.display = "block";
-        break;
-      case 10:
-        if (img4) img4.style.display = "block";
-        break;
-      case 11:
-        if (moreImg) moreImg.style.display = "block";
-        break;
-      case 12:
-        if (lessImg) lessImg.style.display = "block";
-        break;
+    // Show special images for certain audios
+    toggleImagesOnAudio(audioNum, true);
+
+    // Audio-specific actions
+    if (audioNum === 4 && miloImg) {
+      miloImg.style.display = "block";
+    }
+    
+    if (audioNum === 5 && contElement) {
+      const inst = contElement.querySelector("h1");
+      if (inst) {
+        inst.innerHTML = '<span style="color:red;font-weight:bold;">Click</span> the toys';
+        inst.style.opacity = "1";
+      }
     }
 
+    // When audio ends
     audio.onended = () => {
-      // ✅ Hide subtitle text when audio ends
-      if (subtitleElement) {
-        subtitleElement.style.opacity = "0";
+      // Clear subtitle interval if still running
+      if (subtitleIntervalId) {
+        clearInterval(subtitleIntervalId);
+        subtitleIntervalId = null;
       }
-
-      // ✅ Hide .click element when audio ends (will show again with next audio if it has text)
+      
+      // Hide subtitle smoothly
+      hideSubtitle();
+      
       if (clickImg) {
         clickImg.style.opacity = "0";
-        // Don't hide completely, just fade out - next audio will update it
       }
 
-      switch (audioNum) {
-        case 4:
-          if (miloImg) miloImg.style.display = "none";
-          if (instruction) instruction.style.opacity = "0";
-          break;
-        case 5:
-          if (instruction) {
-            instruction.innerHTML =
-              '<span style="color:red;font-weight:bold;">Tap</span> and <span style="color:red;font-weight:bold;">drag</span> toys<br>to the shelves';
-            instruction.style.opacity = "0";
+      // Hide special images
+      toggleImagesOnAudio(audioNum, false);
+
+      // Reverse specific actions
+      if (audioNum === 4 && miloImg) {
+        miloImg.style.display = "none";
+      }
+      
+      if (audioNum === 5) {
+        if (contElement) {
+          const inst = contElement.querySelector("h1");
+          if (inst) {
+            inst.innerHTML = '<span style="color:red;font-weight:bold;">Tap</span> and <span style="color:red;font-weight:bold;">drag</span> toys<br>to the shelves';
+            inst.style.opacity = "0";
           }
-          enableToyClicks();
-          break;
-        case 9:
-          if (img5) img5.style.display = "none";
-          break;
-        case 10:
-          if (img4) img4.style.display = "none";
-          break;
-        case 11:
-          if (moreImg) moreImg.style.display = "none";
-          break;
-        case 12:
-          if (lessImg) lessImg.style.display = "none";
-          break;
+        }
+        enableToyClicks();
+        // Show bottom arrow after audio 5 finishes (when toys become clickable)
+        if (bottomArrow) {
+          bottomArrow.style.display = "block";
+        }
       }
 
-      if (audioNum === 16) {
-        showPlayAgainPage();
-      }
-
+      currentAudioElement = null;
       isPlayingAudio = false;
-      playNextAudio();
+
+      // Continue queue or show Play Again
+      if (audioQueue.length > 0) {
+        setTimeout(() => playNextAudio(), 400);
+      } else if (audioNum === 12) {
+        setTimeout(() => showPlayAgainPage(), 800);
+      }
     };
 
-    audio.play().catch(err => console.log("Audio play error:", err));
+    audio.play().catch(err => {
+      console.warn("Audio play failed:", err);
+      if (subtitleIntervalId) {
+        clearInterval(subtitleIntervalId);
+        subtitleIntervalId = null;
+      }
+      currentAudioElement = null;
+      isPlayingAudio = false;
+      playNextAudio();
+    });
   }
 
+  /* ========================================
+     START INITIAL AUDIOS
+     ======================================== */
   function playInitialAudios() {
     disableToyClicks();
     setTimeout(() => {
-      audioQueue.push(1, 3, 4, 5);
+      audioQueue.push(1, 2, 3, 4, 5);
       playNextAudio();
-    }, 1000);
+    }, 600);
   }
 
-  let started = false;
+  // Start on first click
   document.addEventListener("click", () => {
     if (!started) {
       started = true;
+      
+      // Ensure background music plays on first interaction
+      if (backgroundMusic && backgroundMusic.paused && !isMusicMuted) {
+        backgroundMusic.play().catch(err => console.log("Background music play failed:", err));
+      }
+      
       playInitialAudios();
-      console.log("▶️ Audio sequence started after user click");
     }
-  });
+  }, { once: true });
 
-  items.forEach((item, index) => {
+  /* ========================================
+     TOY CLICK HANDLER
+     ======================================== */
+  const itemIdMap = {
+    "duck": "duck-toy",
+    "hore": "hore-toy",
+    "dino": "dino-toy",
+    "house": "house-toy",
+    "ball": "ball-toy",
+    "train": "train-toy",
+    "roll": "roll-toy",
+    "ship": "ship-toy",
+    "fan": "fan-toy"
+  };
+
+  items.forEach((item) => {
     item.addEventListener("click", () => {
       if (!toysClickable || placedItems.has(item)) return;
 
-      toyPositions = getToyPositionsRelativeToLip();
+      // Play Collect Star audio on each click
+      const collectStarAudio = new Audio("./audio/Collect Star.mp3");
+      collectStarAudio.play().catch(err => console.log("Collect Star audio play failed:", err));
 
-      const targetShelf = index < 5 ? "A" : "B";
-      const positionIndex = targetShelf === "A" ? index : index - 5;
-      const shelfContainer = targetShelf === "A" ? shelfA : shelfB;
-      const lipElement = targetShelf === "A" ? lipA : lipB;
-
-      console.log("🧸 Item clicked:", item.alt, "→ Shelf:", targetShelf);
-
+      // Mark as placed
       placedItems.add(item);
-      // ✅ Hide the original image from .items - preserve size of remaining items
-      // Before hiding, ensure remaining visible items maintain their size
+      
+      // Hide clicked toy
       item.style.display = "none";
       item.style.pointerEvents = "none";
-      
-      // ✅ Force remaining visible images to maintain their size
-      const widthPercentages = {
-        "duck": 7,
-        "hore": 11,
-        "house": 6,
-        "train": 7,
-        "ship": 10,
-        "ball": 7,
-        "fan": 6
-      };
-      
-      // Handle items-img-A (for Shelf A)
-      if (targetShelf === "A") {
-        const itemsImgA = document.querySelector(".items-img-A");
-        if (itemsImgA) {
-          setTimeout(() => {
-            const allItemsInA = itemsImgA.querySelectorAll("img");
-            allItemsInA.forEach(img => {
-              const imgId = img.id;
-              const correspondingItem = Array.from(items).find(i => i.id === imgId);
-              const isPlaced = correspondingItem && placedItems.has(correspondingItem);
-              
-              if (!isPlaced && widthPercentages[imgId]) {
-                const percent = widthPercentages[imgId];
-                const viewportWidth = window.innerWidth;
-                const pixelWidth = (viewportWidth * percent) / 100;
-                img.style.width = `${pixelWidth}px`;
-                img.style.minWidth = `${pixelWidth}px`;
-                img.style.maxWidth = `${pixelWidth}px`;
-                img.style.flexShrink = "0";
-                img.style.flexGrow = "0";
-              }
-            });
-          }, 0);
-        }
-      }
-      
-      // Handle items-img-B (for Shelf B)
-      if (targetShelf === "B") {
-        const itemsImgB = document.querySelector(".items-img-B");
-        if (itemsImgB) {
-          setTimeout(() => {
-            const allItemsInB = itemsImgB.querySelectorAll("img");
-            allItemsInB.forEach(img => {
-              const imgId = img.id;
-              const correspondingItem = Array.from(items).find(i => i.id === imgId);
-              const isPlaced = correspondingItem && placedItems.has(correspondingItem);
-              
-              if (!isPlaced && widthPercentages[imgId]) {
-                const percent = widthPercentages[imgId];
-                const viewportWidth = window.innerWidth;
-                const pixelWidth = (viewportWidth * percent) / 100;
-                img.style.width = `${pixelWidth}px`;
-                img.style.minWidth = `${pixelWidth}px`;
-                img.style.maxWidth = `${pixelWidth}px`;
-                img.style.flexShrink = "0";
-                img.style.flexGrow = "0";
-              }
-            });
-          }, 0);
-        }
-      }
 
-      // ✅ Map clicked item ID to corresponding toy image ID in toys-above divs
-      const itemIdMap = {
-        "train": "train-toy",
-        "hore": "hore-toy",
-        "dino": "dino-toy",
-        "house": "house-toy",
-        "ball": "ball-toy",
-        "duck": "duck-toy",
-        "roll": "roll-toy",
-        "ship": "ship-toy",
-        "fan": "fan-toy"
-      };
+      // Find container
+      let containerClass = null;
+      if (item.closest(".items-img-A")) containerClass = ".items-img-A";
+      else if (item.closest(".items-img-B")) containerClass = ".items-img-B";
+      else if (item.closest(".items-img-C")) containerClass = ".items-img-C";
+      else if (item.closest(".items-img-D")) containerClass = ".items-img-D";
 
-      const toyImageId = itemIdMap[item.id] || `${item.id}-toy`;
+      // Resize remaining toys
+      if (containerClass) resizeRemainingItems(containerClass);
+
+      // Show toy on shelf
+      const toyImageId = itemIdMap[item.id];
       const toyImageElement = document.getElementById(toyImageId);
-
-      // ✅ Get alt text from the clicked image or the corresponding toy image
-      let toyName = item.alt && item.alt.trim() !== "" ? item.alt : "";
-      if (!toyName && toyImageElement && toyImageElement.alt) {
-        toyName = toyImageElement.alt;
-      }
-      if (!toyName && item.id) {
-        // Use ID if alt is empty
-        toyName = item.id.charAt(0).toUpperCase() + item.id.slice(1);
-      }
-
-      // ✅ Display image in toys-above-self-A or toys-above-self-B (show image, hide text)
       if (toyImageElement) {
-        // Show the image (display: block)
         toyImageElement.style.display = "block";
         
-        // Hide any existing text element if it exists
-        const toyTextId = `${toyImageId}-text`;
-        const toyTextElement = document.getElementById(toyTextId);
-        if (toyTextElement) {
-          toyTextElement.style.display = "none";
-        }
+        const toyText = document.getElementById(`${toyImageId}-text`);
+        if (toyText) toyText.style.display = "none";
       }
 
-      // ✅ LIP KE RELATIVE POSITION CALCULATE KARO
-      const lipRect = lipElement.getBoundingClientRect();
-      const shelfRect = shelfContainer.getBoundingClientRect();
-      
-      // Lip ka shelf ke andar relative position
-      const relativeX = lipRect.left - shelfRect.left;
-      const relativeY = lipRect.top - shelfRect.top;
-      
-      // Toy ka lip ke andar position
-      const toyPos = toyPositions[targetShelf][positionIndex];
-
-      const clone = item.cloneNode(true);
-      clone.dataset.originalIndex = index;
-      
-      clone.style.position = "absolute";
-      // ✅ Final position = Lip position + Toy offset
-      clone.style.left = `${relativeX + toyPos.x}px`;
-      clone.style.top = `${relativeY + toyPos.y}px`;
-
-      const toySizes = getToySizes();
-      clone.style.width = toySizes[index] || `${100 * toyPositions.scale}px`;
-      clone.style.height = "auto";
-      clone.style.zIndex = "1";
-      clone.style.pointerEvents = "none";
-      clone.style.opacity = "1";
-      clone.style.transition = "all 0.3s ease";
-
-      shelfContainer.appendChild(clone);
-
-      if (placedItems.size === items.length) {
-        console.log("✅ All toys placed!");
-        for (let i = 9; i <= 16; i++) audioQueue.push(i);
-        playNextAudio();
+      // Check if all toys placed
+      if (placedItems.size === items.length && !endSequenceStarted) {
+        endSequenceStarted = true;
+        
+        // Hide bottom arrow when all toys are placed
+        if (bottomArrow) {
+          bottomArrow.style.display = "none";
+        }
+        
+        // Play Collect Star audio when all toys are placed
+        const collectStarAudio = new Audio("./audio/Collect Star.mp3");
+        collectStarAudio.play().catch(err => console.log("Collect Star audio play failed:", err));
+        
+        setTimeout(() => {
+          for (let i = 6; i <= 12; i++) {
+            audioQueue.push(i);
+          }
+          if (!isPlayingAudio) {
+            playNextAudio();
+          }
+        }, 500);
       }
     });
   });
 
-  const homeBtn = document.getElementById("home");
-  if (homeBtn) {
-    homeBtn.addEventListener("click", () => {
-      window.location.href = "main.html";
+  /* ========================================
+     ICON LEFT IMAGES - COLLECT STAR AUDIO
+     ======================================== */
+  iconLeftImages.forEach(img => {
+    img.addEventListener("click", () => {
+      const collectStarAudio = new Audio("./audio/Collect Star.mp3");
+      collectStarAudio.play().catch(err => console.log("Collect Star audio play failed:", err));
+    });
+  });
+
+  /* ========================================
+     HOME BUTTON
+     ======================================== */
+  // Home button functionality moved to popup section below
+
+  /* ========================================
+     PLAY AGAIN OVERLAY 
+     ======================================== */
+  function showPlayAgainPage() {
+    // Create overlay
+    const overlay = document.createElement("div");
+    overlay.className = "play-again-overlay";
+    document.body.appendChild(overlay);
+
+    // Create box with image
+    const box = document.createElement("div");
+    box.className = "play-again-box";
+    overlay.appendChild(box);
+
+    // Image
+    const img = document.createElement("img");
+    img.src = "./IMAGES/the-end-slide (0-00-01-08).png";
+    img.alt = "Great Job!";
+    img.style.width = "100%";
+    img.style.height = "100%";
+    img.style.objectFit = "contain";
+    box.appendChild(img);
+
+    // Close button (X) at bottom
+    const closeBtn = document.createElement("img");
+    closeBtn.src = "./Index-page/x.png";
+    closeBtn.alt = "Close";
+    closeBtn.style.position = "absolute";
+    closeBtn.style.bottom = "18%";
+    closeBtn.style.left = "50%";
+    closeBtn.style.transform = "translateX(-50%)";
+    closeBtn.style.width = "3vw";
+    closeBtn.style.height = "auto";
+    closeBtn.style.cursor = "pointer";
+    closeBtn.style.zIndex = "10005";
+    closeBtn.style.transition = "transform 0.2s ease";
+    box.style.position = "relative";
+    box.appendChild(closeBtn);
+
+    // Close button hover effect
+    closeBtn.addEventListener("mouseenter", () => {
+      closeBtn.style.transform = "translateX(-50%) scale(1.1)";
+    });
+    closeBtn.addEventListener("mouseleave", () => {
+      closeBtn.style.transform = "translateX(-50%) scale(1)";
+    });
+
+    // Close button click handler
+    closeBtn.addEventListener("click", (e) => {
+      e.preventDefault();
+      e.stopPropagation();
+      location.reload();
+    });
+
+    // Make overlay clickable to reload
+    overlay.addEventListener("click", () => location.reload());
+
+    // Animate in
+    setTimeout(() => {
+      box.classList.add("show");
+    }, 80);
+  }
+
+  /* ========================================
+     HOME POPUP FUNCTIONALITY (Modal with buttons)
+     ======================================== */
+  const homePopup = document.getElementById("home-popup");
+  const stayBtn = document.getElementById("stay-btn");
+  const leaveBtn = document.getElementById("leave-btn");
+
+  // Function to disable all interactions when home popup is open
+  function disableInteractionsForHomePopup() {
+    // Disable pointer events on main content
+    if (mainContent) {
+      mainContent.style.pointerEvents = "none";
+    }
+    // Disable all buttons including info button
+    if (homeBtn) homeBtn.style.pointerEvents = "none";
+    if (infoBtn) infoBtn.style.pointerEvents = "none";
+    if (musicBtn) musicBtn.style.pointerEvents = "none";
+    
+    // Disable all items (toys)
+    items.forEach(item => {
+      item.style.pointerEvents = "none";
+    });
+    
+    // Disable all icon left images
+    iconLeftImages.forEach(img => {
+      img.style.pointerEvents = "none";
+    });
+    
+    // Disable body but allow home popup
+    document.body.style.pointerEvents = "none";
+    if (homePopup) {
+      homePopup.style.pointerEvents = "auto";
+    }
+  }
+
+  // Function to enable all interactions when home popup is closed
+  function enableInteractionsAfterHomePopup() {
+    // Re-enable pointer events
+    if (mainContent) {
+      mainContent.style.pointerEvents = "auto";
+    }
+    if (homeBtn) homeBtn.style.pointerEvents = "auto";
+    if (infoBtn) infoBtn.style.pointerEvents = "auto";
+    if (musicBtn) musicBtn.style.pointerEvents = "auto";
+    
+    // Re-enable items (toys)
+    items.forEach(item => {
+      if (!placedItems.has(item)) {
+        item.style.pointerEvents = "auto";
+      }
+    });
+    
+    // Re-enable icon left images
+    iconLeftImages.forEach(img => {
+      img.style.pointerEvents = "auto";
+    });
+    
+    document.body.style.pointerEvents = "auto";
+  }
+
+  // Open home popup when home button is clicked
+  if (homeBtn && homePopup) {
+    homeBtn.addEventListener("click", (e) => {
+      e.preventDefault();
+      e.stopPropagation();
+      // Play Collect Star audio on click - same as icon buttons
+      const collectStarAudio = new Audio("./audio/Collect Star.mp3");
+      collectStarAudio.play().catch(err => console.log("Collect Star audio play failed:", err));
+      homePopup.style.display = "flex";
+      // Disable all interactions when popup opens
+      disableInteractionsForHomePopup();
     });
   }
+
+  // Close popup when Stay button is clicked
+  if (stayBtn && homePopup) {
+    stayBtn.addEventListener("click", (e) => {
+      e.preventDefault();
+      e.stopPropagation();
+      // Play Collect Star audio on click - same as icon buttons
+      const collectStarAudio = new Audio("./audio/Collect Star.mp3");
+      collectStarAudio.play().catch(err => console.log("Collect Star audio play failed:", err));
+      homePopup.style.display = "none";
+      // Re-enable all interactions when popup closes
+      enableInteractionsAfterHomePopup();
+    });
+  }
+
+  // Handle Leave button click
+  if (leaveBtn && homePopup) {
+    leaveBtn.addEventListener("click", (e) => {
+      e.preventDefault();
+      e.stopPropagation();
+      // Play Collect Star audio on click - same as icon buttons
+      const collectStarAudio = new Audio("./audio/Collect Star.mp3");
+      collectStarAudio.play().catch(err => console.log("Collect Star audio play failed:", err));
+      // Add delay before redirect to allow audio to play
+      setTimeout(() => {
+        window.location.href = "main.html";
+      }, 200);
+    });
+  }
+
+  // Home popup can only be closed by clicking Stay or Leave buttons
+  // Background click to close has been disabled
+
+  /* ========================================
+     INFO POPUP FUNCTIONALITY (Image popup)
+     ======================================== */
+  const infoPopup = document.getElementById("info-popup");
+  const popupImg = document.getElementById("popup-img");
+  const closePopup = document.getElementById("close-popup");
+
+  // Function to disable all interactions except popup
+  function disablePageInteractions() {
+    // Disable pointer events on main content
+    if (mainContent) {
+      mainContent.style.pointerEvents = "none";
+    }
+    // Disable all buttons and clickable elements
+    if (homeBtn) homeBtn.style.pointerEvents = "none";
+    if (infoBtn) infoBtn.style.pointerEvents = "none";
+    if (musicBtn) musicBtn.style.pointerEvents = "none";
+    
+    // Disable all items (toys)
+    items.forEach(item => {
+      item.style.pointerEvents = "none";
+    });
+    
+    // Disable all icon left images
+    iconLeftImages.forEach(img => {
+      if (img !== infoBtn) { // Don't disable info button that opened the popup
+        img.style.pointerEvents = "none";
+      }
+    });
+    
+    // Disable body but allow popup
+    document.body.style.pointerEvents = "none";
+    if (infoPopup) {
+      infoPopup.style.pointerEvents = "auto";
+    }
+  }
+
+  // Function to enable all interactions
+  function enablePageInteractions() {
+    // Re-enable pointer events
+    if (mainContent) {
+      mainContent.style.pointerEvents = "auto";
+    }
+    if (homeBtn) homeBtn.style.pointerEvents = "auto";
+    if (infoBtn) infoBtn.style.pointerEvents = "auto";
+    if (musicBtn) musicBtn.style.pointerEvents = "auto";
+    
+    // Re-enable items (toys)
+    items.forEach(item => {
+      if (!placedItems.has(item)) {
+        item.style.pointerEvents = "auto";
+      }
+    });
+    
+    // Re-enable icon left images
+    iconLeftImages.forEach(img => {
+      img.style.pointerEvents = "auto";
+    });
+    
+    document.body.style.pointerEvents = "auto";
+  }
+
+  // Open info popup when info button is clicked
+  if (infoBtn && infoPopup && popupImg) {
+    infoBtn.addEventListener("click", (e) => {
+      e.preventDefault();
+      e.stopPropagation();
+      // Don't allow info popup to open if home popup is open
+      if (homePopup && homePopup.style.display === "flex") {
+        return;
+      }
+      // Play Collect Star audio on click - same as icon buttons
+      const collectStarAudio = new Audio("./audio/Collect Star.mp3");
+      collectStarAudio.play().catch(err => console.log("Collect Star audio play failed:", err));
+      // Get image source from data-img attribute
+      const imgSrc = infoBtn.getAttribute("data-img");
+      if (imgSrc) {
+        popupImg.src = imgSrc;
+        infoPopup.style.display = "flex";
+        // Disable all other interactions
+        disablePageInteractions();
+      }
+    });
+  }
+
+  // Close info popup when close button is clicked (ONLY way to close)
+  if (closePopup && infoPopup) {
+    closePopup.addEventListener("click", (e) => {
+      e.preventDefault();
+      e.stopPropagation();
+      // Play Collect Star audio on click - same as icon buttons
+      const collectStarAudio = new Audio("./audio/Collect Star.mp3");
+      collectStarAudio.play().catch(err => console.log("Collect Star audio play failed:", err));
+      infoPopup.style.display = "none";
+      // Re-enable all interactions
+      enablePageInteractions();
+    });
+  }
+
+  // Remove background click to close - info popup can only be closed by X button
 });
-
-function showPlayAgainPage() {
-  const overlay = document.createElement("div");
-  overlay.style.position = "fixed";
-  overlay.style.top = "0";
-  overlay.style.left = "0";
-  overlay.style.width = "100%";
-  overlay.style.height = "100%";
-  overlay.style.background = "transparent";
-  overlay.style.display = "flex";
-  overlay.style.justifyContent = "center";
-  overlay.style.alignItems = "center";
-  overlay.style.zIndex = "10";
-  overlay.style.pointerEvents = "none";
-  document.body.appendChild(overlay);
-
-  const box = document.createElement("div");
-  box.style.pointerEvents = "auto";
-  box.style.width = "30%";
-  box.style.minWidth = "320px";
-  box.style.aspectRatio = "1 / 1";
-  box.style.background = "linear-gradient(135deg, #ff7e00, #ffc300, #ffe766)";
-  box.style.borderRadius = "30px";
-  box.style.boxShadow = "0 8px 25px rgba(0,0,0,0.4)";
-  box.style.display = "flex";
-  box.style.flexDirection = "column";
-  box.style.justifyContent = "center";
-  box.style.alignItems = "center";
-  box.style.color = "#fff";
-  box.style.fontFamily = "'Comic Sans MS', cursive, sans-serif";
-  box.style.fontSize = "28px";
-  box.style.transform = "scale(0)";
-  box.style.transition = "transform 0.5s ease";
-  overlay.appendChild(box);
-
-  const title = document.createElement("h2");
-  title.innerText = "Great Job! 🎉";
-  title.style.marginBottom = "20px";
-  title.style.textShadow = "2px 2px 5px rgba(0,0,0,0.3)";
-  box.appendChild(title);
-
-  const btn = document.createElement("button");
-  btn.innerText = "Play Again";
-  btn.style.padding = "15px 40px";
-  btn.style.fontSize = "22px";
-  btn.style.border = "none";
-  btn.style.borderRadius = "50px";
-  btn.style.background = "linear-gradient(90deg, #692517ff, #8e5144ff)";
-  btn.style.color = "white";
-  btn.style.cursor = "pointer";
-  btn.style.boxShadow = "0 4px 15px rgba(0,0,0,0.3)";
-  btn.style.transition = "all 0.3s ease";
-  btn.addEventListener("mouseover", () => {
-    btn.style.transform = "scale(1.1)";
-    btn.style.boxShadow = "0 6px 20px rgba(255,165,0,0.6)";
-  });
-  btn.addEventListener("mouseout", () => {
-    btn.style.transform = "scale(1)";
-    btn.style.boxShadow = "0 4px 15px rgba(0,0,0,0.3)";
-  });
-  btn.addEventListener("click", () => location.reload());
-  box.appendChild(btn);
-
-  setTimeout(() => {
-    box.style.transform = "scale(1)";
-  }, 100);
-}

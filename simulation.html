@@ -8,20 +8,29 @@
 </head>
 <body>
   <div class="main">
+
+    
     <!-- ICONS -->
     <div class="icon">
       <div class="icon-left">
-        <img id="home" src="./Index-page/home-button.png" alt="Home" />
-        <img id="musi" src="./Index-page/music-button.png" alt="Music" />
-        <img id="info" src="./Index-page/Info-button.png" alt="Info" />
+        <img id="home" src="./Index-page/home.png" alt="Home" style="cursor: pointer;" />
+        <img id="musi" src="./Index-page/audio.png" alt="Music" style="cursor: pointer;" />
+        <img id="info" src="./Index-page/info.png" alt="Info" data-img="./Index-page/info-box.png" style="cursor: pointer;" />
       </div>
-      <img id="logo" src="./ME_imprint_land_digital_rgb.png" alt="Macmillan Education Logo" />
+      <div class="icon-center" style="background-image: url('./IMAGES/Comp 6 (0-00-01-08).png');">
+        <!-- <img id="logo" src="./IMAGES/Comp 6 (0-00-01-08).png" alt="Macmillan Education Logo" /> -->
+         <h1 style="font-size: 3vw; font-weight: 100;">More or Less</h1>
+      </div>
+      <div class="icon-right">
+
+        <img id="logo" src="./ME_imprint_land_digital_rgb.png" alt="Macmillan Education Logo" />
+      </div>
     </div>
 
     <!-- SHELVES -->
     <div class="shelf">
       <div class="shelfi-A">
-        <img src="./IMAGES/SHELF-A.png" alt="Shelf A" class="shelf-body-1" />
+        <img src="./IMAGES/ShelfA.png" alt="Shelf A" class="shelf-body-1" />
         <!-- <div class="shelf-items"></div> -->
         <!-- <div > -->
 
@@ -40,20 +49,101 @@
           </div>
         
         <!-- </div> -->
-      </div> 
+      </div>  
+
+
+      <!-- <div class="more">
+        <video src=""></video>
+      </div> -->
 
       <div class="cont">
-
-        <!-- <h1 class="milo">Hello start 1</h1> -->
-        <!-- <img class="milo" src="./IMAGES/Layer 2.png" alt=""> -->
-        <!-- <img src="./IMAGES/Layer 3.png" alt="" class="click"> -->
-       <!-- <h1 class="click">hello start from this </h1> -->
-        <img src="./IMAGES/Layer 5.png" alt="More" class="more">
-        <img src="./IMAGES/Layer 1.png" alt="Less" class="less">
+        <!-- Subtitle 1 -->
+        <div class="subtitle-text subtitle-1">
+          <span>Welcome to the playroom!</span>
+        </div>
+        <div class="subtitle-text subtitle-1-line2">
+          <span>The toys are all over the floor!</span>
+        </div>
+        
+        <!-- Subtitle 2 -->
+        <div class="subtitle-text subtitle-2">
+          <span>Let's help tidy up,</span>
+        </div>
+        <div class="subtitle-text subtitle-2-line2">
+          <span>and put them back on the shelves.</span>
+        </div>
+        
+        <!-- Subtitle 3 -->
+        <div class="subtitle-text subtitle-3">
+          <span>As we clean,</span>
+        </div>
+        <div class="subtitle-text subtitle-3-line2">
+          <span>we'll see which shelf has <span class='highlight-more'>more</span> toys,</span>
+        </div>
+        <div class="subtitle-text subtitle-3-line3">
+          <span>and which has <span class='highlight-more'>less</span> !</span>
+        </div>
+        
+        <!-- Subtitle 4 -->
+        <div class="subtitle-text subtitle-4">
+          <span><span class='highlight-more'>Drag</span> and <span class='highlight-more'>drop</span> toys</span>
+        </div>
+        <div class="subtitle-text subtitle-4-line2">
+          <span>to place them on the shelves.</span>
+        </div>
+        
+        <!-- Subtitle 5 -->
+        <div class="subtitle-text subtitle-5">
+          <span>All done!</span>
+        </div>
+        
+        <!-- Subtitle 6 -->
+        <div class="subtitle-text subtitle-6">
+          <span>The playroom is clean again!</span>
+        </div>
+        
+        <!-- Subtitle 7 -->
+        <div class="subtitle-text subtitle-7">
+          <span>Shelf A has <span class='highlight-more' id='num1'>5</span> toys</span>
+        </div>
+        
+        <!-- Subtitle 8 -->
+        <div class="subtitle-text subtitle-8">
+          <span>Shelf B has <span class='highlight-more' id='num2'>4</span> toys</span>
+        </div>
+        
+        <!-- Subtitle 9 -->
+        <div class="subtitle-text subtitle-9">
+          <span>That means Shelf A has <span class='highlight-more'>more</span> toys,</span>
+        </div>
+        <div class="subtitle-text subtitle-9-line2">
+          <span>and Shelf B has <span class='highlight-more'>less</span> toys!</span>
+        </div>
+        
+        <!-- Subtitle 10 -->
+        <div class="subtitle-text subtitle-10">
+          <span>When we have a lot,</span>
+        </div>
+        <div class="subtitle-text subtitle-10-line2">
+          <span>it's <span class='highlight-more'>More</span></span>
+        </div>
+        
+        <!-- Subtitle 11 -->
+        <div class="subtitle-text subtitle-11">
+          <span>When we have a little,</span>
+        </div>
+        <div class="subtitle-text subtitle-11-line2">
+          <span>it's <span class='highlight-more'>Less</span>.</span>
+        </div>
+        
+        <!-- Subtitle 12 -->
+        <div class="subtitle-text subtitle-12">
+          <span>Great job!</span>
+        </div>
       </div>
 
       <div class="shelfi-B">
-        <img src="./IMAGES/SHELF-B .png" alt="Shelf B" class="shelf-body" />
+        <img src="./IMAGES/ShelfB.png" alt="Shelf B" class="shelf-body" />
         <!-- <div class="shelf-items"></div> -->
         <img src="./IMAGES/lip-Grou.png" alt="Shelf Lip" class="lip" />
         <div class="toys-above-self-B">
@@ -96,6 +186,11 @@
     <div class="text">
        <h2>Copyright @ 2026 Macmillan Education India Private Limited. All rights reserved</h2>
      </div>
+     
+    <!-- Bottom Arrow Indicator -->
+    <div id="bottom-arrow" class="bottom-arrow" style="display: none;">
+      <img src="./IMAGES//Comp 6 (0-00-01-08).png" class="bottom-arrow-img" style="width: 100%; height: 30vh;" alt="Arrow Down" onerror="this.src='data:image/svg+xml,%3Csvg xmlns=\'http://www.w3.org/2000/svg\' viewBox=\'0 0 24 24\' fill=\'%23000\'%3E%3Cpath d=\'M7.41 8.59L12 13.17l4.59-4.58L18 10l-6 6-6-6 1.41-1.41z\'/%3E%3C/svg%3E';" />
+    </div>
   </div>
    
   <!-- Rotate Phone Message -->
@@ -107,6 +202,32 @@
     </div>
   </div>
 
+ 
+  <!-- 👇 Home Modal Popup -->
+  <div id="home-popup" class="popup">
+    <div class="popup-content modal-box">
+      <h2 class="modal-title">Oops!</h2>
+      <div class="modal-message">
+        <p>If you leave the game then you</p>
+        <p>have to start from beginning.</p>
+      </div>
+      <p class="modal-question">Are you Sure, You want to leave?</p>
+      <div class="modal-buttons">
+        <button id="stay-btn" class="modal-btn">Stay</button>
+        <button id="leave-btn" class="modal-btn">Leave</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- 👇 Info Image Popup -->
+  <div id="info-popup" class="popup">
+    <div class="popup-content-info">
+      <img id="popup-img" src="" alt="Information Popup">
+      <img id="close-popup" src="./Index-page/x.png" alt="Close" class="close-x-btn">
+    </div>
+  </div>
+
+  <script src="audio-manager.js"></script>
   <script src="simu.js"></script>
 </body>
 </html>
