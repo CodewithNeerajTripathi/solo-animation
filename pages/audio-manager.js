@@ -8,7 +8,7 @@
   let isMusicMuted = localStorage.getItem('musicMuted') === 'true';
   
   // Create background music instance immediately (not waiting for DOM)
-  let backgroundMusic = new Audio("./audio/Main-version.wav");
+  let backgroundMusic = new Audio("../audio/Main-version.wav");
   backgroundMusic.loop = true;
   backgroundMusic.volume = 0.3; // 30% volume
   
@@ -20,7 +20,7 @@
   // Play click sound effect
   function playClickSound() {
     try {
-      const clickSound = new Audio("./audio/Collect Star.mp3");
+      const clickSound = new Audio("../audio/Click.mp3");
       clickSound.volume = 0.7; // 70% volume for click sound
       clickSound.play().catch(err => {
         console.log("Click sound play failed:", err);

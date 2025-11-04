@@ -1,4 +1,4 @@
-// simu.js - Clean JavaScript Logic
+// simu.js - Drag and Drop Version (Complete User Freedom)
 // All styles moved to CSS, structure to HTML
 
 document.addEventListener("DOMContentLoaded", () => {
@@ -22,6 +22,12 @@ document.addEventListener("DOMContentLoaded", () => {
   const infoBtn = document.getElementById("info");
   const iconLeftImages = Array.from(document.querySelectorAll(".icon-left img"));
   const bottomArrow = document.getElementById("bottom-arrow");
+  
+  // Shelf drop zones and containers
+  const shelfA = document.querySelector(".shelfi-A");
+  const shelfB = document.querySelector(".shelfi-B");
+  const toysAboveShelfA = document.querySelector(".toys-above-self-A");
+  const toysAboveShelfB = document.querySelector(".toys-above-self-B");
 
   /* ========================================
      INITIAL SETUP - HIDE ELEMENTS
@@ -115,8 +121,17 @@ document.addEventListener("DOMContentLoaded", () => {
   let started = false;
   let endSequenceStarted = false;
   
-  // Background Music - Now using shared audio-manager.js
-  // The audio-manager.js handles music for all pages
+  // Drag and drop state
+  let draggedElement = null;
+  let shelfACounts = 0;
+  let shelfBCounts = 0;
+  const MAX_TOYS_PER_SHELF = 6;
+  
+  // Track which toys are on which shelf
+  const toysOnShelfA = [];
+  const toysOnShelfB = [];
+  
+  // Background Music
   let backgroundMusic = null;
   let isMusicMuted = false;
 
@@ -143,24 +158,17 @@ document.addEventListener("DOMContentLoaded", () => {
      BACKGROUND MUSIC SETUP
      ======================================== */
   function setupBackgroundMusic() {
-    // Use shared audio manager if available (audio-manager.js handles music now)
     if (window.audioManager && window.audioManager.getMusic) {
       backgroundMusic = window.audioManager.getMusic();
       isMusicMuted = !window.audioManager.getState();
     } else {
-      // Fallback: create our own only if audio-manager didn't load
-      // This should rarely happen since audio-manager.js loads before simu.js
-      backgroundMusic = new Audio("./audio/Main-version.wav");
+      backgroundMusic = new Audio("../audio/Main-version.wav");
       backgroundMusic.loop = true;
-      backgroundMusic.volume = 0.3; // Match audio-manager volume
+      backgroundMusic.volume = 0.3;
     }
   }
   
-  // Initialize background music
   setupBackgroundMusic();
-  
-  // Music button toggle - now handled by audio-manager.js
-  // We don't need to add click listener here since audio-manager.js handles it
 
   /* ========================================
      HELPER: TOGGLE SPECIAL IMAGES
@@ -216,7 +224,6 @@ document.addEventListener("DOMContentLoaded", () => {
     if (element) {
       element.style.setProperty("display", "flex", "important");
       element.classList.add("show");
-      // Force a reflow to ensure CSS transition works
       void element.offsetHeight;
     }
   }
@@ -225,7 +232,6 @@ document.addEventListener("DOMContentLoaded", () => {
      HIDE SUBTITLE (SMOOTH)
      ======================================== */
   function hideSubtitle() {
-    // Hide all subtitle elements
     const allSubtitles = document.querySelectorAll('.subtitle-text');
     allSubtitles.forEach(sub => {
       sub.classList.remove("show");
@@ -240,29 +246,20 @@ document.addEventListener("DOMContentLoaded", () => {
     const linesCount = Object.keys(lines).length;
     if (!lines || linesCount === 0) return;
     
-    // Clear any existing interval
     if (subtitleIntervalId) {
       clearInterval(subtitleIntervalId);
       subtitleIntervalId = null;
     }
     
-    // Hide all previous subtitles first
     hideSubtitle();
-    
-    // Calculate time per line - har line ko equal time
-    const timePerLine = (audioDuration * 1000) / linesCount; // milliseconds mein
-    
-    // Show first line immediately
+    const timePerLine = (audioDuration * 1000) / linesCount;
     displaySubtitle(lines[0]);
     
-    // Schedule remaining lines with proper timing
     if (linesCount > 1) {
-      let currentLineIndex = 1; // Start from second line (index 1)
+      let currentLineIndex = 1;
       
-      // Schedule each remaining line at equal intervals
       subtitleIntervalId = setInterval(() => {
         if (currentLineIndex < linesCount) {
-          // Hide previous line
           if (currentLineIndex > 0) {
             const prevElement = document.querySelector(`.${lines[currentLineIndex - 1]}`);
             if (prevElement) {
@@ -276,30 +273,263 @@ document.addEventListener("DOMContentLoaded", () => {
           clearInterval(subtitleIntervalId);
           subtitleIntervalId = null;
         }
-      }, timePerLine); // Already in milliseconds
+      }, timePerLine);
     }
   }
 
   /* ========================================
-     TOY CLICK CONTROLS
+     TOY DRAG CONTROLS
      ======================================== */
-  function disableToyClicks() {
+  function disableToyDrag() {
     toysClickable = false;
     items.forEach(item => {
-      item.style.pointerEvents = "none";
+      item.draggable = false;
       item.style.cursor = "not-allowed";
+      item.style.opacity = "0.5";
     });
   }
   
-  function enableToyClicks() {
+  function enableToyDrag() {
     toysClickable = true;
     items.forEach(item => {
       if (!placedItems.has(item)) {
-        item.style.pointerEvents = "auto";
-        item.style.cursor = "pointer";
+        item.draggable = true;
+        item.style.cursor = "grab";
+        item.style.opacity = "1";
       }
     });
   }
+
+  /* ========================================
+     HELPER: CLEAR AND REBUILD SHELF TOYS
+     ======================================== */
+  function rebuildShelfToys(targetContainer, toysList) {
+    // Clear existing content but keep the structure
+    targetContainer.innerHTML = "";
+    
+    // Create two rows like original HTML structure
+    const row1 = document.createElement("div");
+    row1.className = "dynamic-row-1";
+    row1.style.cssText = `
+      display: flex;
+      justify-content: center;
+      align-items: flex-end;
+      gap: 0.1vw;
+      margin-top: 2.5vw;
+    `;
+    
+    const row2 = document.createElement("div");
+    row2.className = "dynamic-row-2";
+    row2.style.cssText = `
+      display: flex;
+      justify-content: center;
+      align-items: flex-end;
+      gap: 0.1vw;
+      margin-top: 3vw;
+    `;
+    
+    targetContainer.appendChild(row1);
+    targetContainer.appendChild(row2);
+    
+    // Map toy IDs to their image sources
+    const toyImageMap = {
+      "duck": "../IMAGES/duck.png",
+      "hore": "../IMAGES/hore.png",
+      "dino": "../IMAGES/dino.png",
+      "house": "../IMAGES/block-house.png",
+      "ball": "../IMAGES/ball.png",
+      "train": "../IMAGES/train.png",
+      "roll": "../IMAGES/roll.png",
+      "ship": "../IMAGES/ship.png",
+      "fan": "../IMAGES/fan.png"
+    };
+    
+    // Size mapping for each toy
+    const toySizeMap = {
+      "duck": "7vw",
+      "hore": "11vw",
+      "dino": "8vw",
+      "house": "5.5vw",
+      "ball": "6vw",
+      "train": "8vw",
+      "roll": "7vw",
+      "ship": "9vw",
+      "fan": "5vw"
+    };
+    
+    // Add toys to appropriate rows with balanced distribution
+    toysList.forEach((toyId, index) => {
+      const toyImage = document.createElement("img");
+      toyImage.src = toyImageMap[toyId] || "";
+      toyImage.alt = toyId;
+      toyImage.id = `placed-${toyId}`;
+      toyImage.style.cssText = `
+        width: ${toySizeMap[toyId] || "7vw"};
+        height: auto;
+        object-fit: contain;
+        display: block;
+      `;
+      
+      // Balanced distribution based on total count
+      const totalToys = toysList.length;
+      let row1Count;
+      
+      if (totalToys === 1) {
+        row1Count = 1; // 1-0
+      } else if (totalToys === 2) {
+        row1Count = 2; // 2-0
+      } else if (totalToys === 3) {
+        row1Count = 1; // 1-2
+      } else if (totalToys === 4) {
+        row1Count = 2; // 2-2
+      } else if (totalToys === 5) {
+        row1Count = 2; // 2-3
+      } else if (totalToys === 6) {
+        row1Count = 3; // 3-3
+      }
+      
+      if (index < row1Count) {
+        row1.appendChild(toyImage);
+      } else {
+        row2.appendChild(toyImage);
+      }
+    });
+  }
+
+  /* ========================================
+     DRAG AND DROP HANDLERS
+     ======================================== */
+  
+  // Make toys draggable
+  items.forEach(item => {
+    item.draggable = false; // Initially not draggable
+    
+    item.addEventListener("dragstart", (e) => {
+      if (!toysClickable || placedItems.has(item)) {
+        e.preventDefault();
+        return;
+      }
+      draggedElement = item;
+      item.style.opacity = "0.5";
+      item.style.cursor = "grabbing";
+      e.dataTransfer.effectAllowed = "move";
+    });
+    
+    item.addEventListener("dragend", (e) => {
+      if (draggedElement) {
+        draggedElement.style.opacity = "1";
+        draggedElement.style.cursor = "grab";
+      }
+    });
+  });
+  
+  // Setup drop zones
+  function setupDropZone(shelf, isShelfA) {
+    if (!shelf) return;
+    
+    shelf.addEventListener("dragover", (e) => {
+      e.preventDefault();
+      e.dataTransfer.dropEffect = "move";
+      
+      // Check if shelf is full (max 6)
+      const currentCount = isShelfA ? shelfACounts : shelfBCounts;
+      if (currentCount >= MAX_TOYS_PER_SHELF) {
+        e.dataTransfer.dropEffect = "none";
+        return;
+      }
+      
+      // Visual feedback
+      shelf.style.opacity = "0.8";
+      shelf.style.border = "3px dashed #4CAF50";
+    });
+    
+    shelf.addEventListener("dragleave", (e) => {
+      shelf.style.opacity = "1";
+      shelf.style.border = "none";
+    });
+    
+    shelf.addEventListener("drop", (e) => {
+      e.preventDefault();
+      shelf.style.opacity = "1";
+      shelf.style.border = "none";
+      
+      if (!draggedElement || placedItems.has(draggedElement)) return;
+      
+      // Check if shelf is full (max 6 toys)
+      const currentCount = isShelfA ? shelfACounts : shelfBCounts;
+      if (currentCount >= MAX_TOYS_PER_SHELF) {
+        alert(`This shelf is full! Maximum ${MAX_TOYS_PER_SHELF} toys allowed.`);
+        return;
+      }
+      
+      // Play Collect Star audio
+      const collectStarAudio = new Audio("../audio/Collect Star.mp3");
+      collectStarAudio.play().catch(err => console.log("Collect Star audio play failed:", err));
+      
+      // Mark as placed
+      placedItems.add(draggedElement);
+      
+      // Update counts and track toys
+      if (isShelfA) {
+        shelfACounts++;
+        toysOnShelfA.push(draggedElement.id);
+        // Rebuild entire shelf A with all toys
+        rebuildShelfToys(toysAboveShelfA, toysOnShelfA);
+      } else {
+        shelfBCounts++;
+        toysOnShelfB.push(draggedElement.id);
+        // Rebuild entire shelf B with all toys
+        rebuildShelfToys(toysAboveShelfB, toysOnShelfB);
+      }
+      
+      // Hide dragged toy from floor
+      draggedElement.style.display = "none";
+      draggedElement.draggable = false;
+      
+      // Find container and resize remaining toys
+      let containerClass = null;
+      if (draggedElement.closest(".items-img-A")) containerClass = ".items-img-A";
+      else if (draggedElement.closest(".items-img-B")) containerClass = ".items-img-B";
+      else if (draggedElement.closest(".items-img-C")) containerClass = ".items-img-C";
+      else if (draggedElement.closest(".items-img-D")) containerClass = ".items-img-D";
+      
+      if (containerClass) resizeRemainingItems(containerClass);
+      
+      // Check if all toys are placed
+      if (placedItems.size === items.length && !endSequenceStarted) {
+        endSequenceStarted = true;
+        
+        // Hide bottom arrow
+        if (bottomArrow) {
+          bottomArrow.style.display = "none";
+        }
+        
+        // Play Collect Star audio
+        const collectStarAudio = new Audio("../audio/Collect Star.mp3");
+        collectStarAudio.play().catch(err => console.log("Collect Star audio play failed:", err));
+        
+        // Update subtitle numbers dynamically based on user's distribution
+        const num1Element = document.getElementById('num1');
+        const num2Element = document.getElementById('num2');
+        if (num1Element) num1Element.textContent = shelfACounts;
+        if (num2Element) num2Element.textContent = shelfBCounts;
+        
+        setTimeout(() => {
+          for (let i = 6; i <= 12; i++) {
+            audioQueue.push(i);
+          }
+          if (!isPlayingAudio) {
+            playNextAudio();
+          }
+        }, 500);
+      }
+      
+      draggedElement = null;
+    });
+  }
+  
+  setupDropZone(shelfA, true);
+  setupDropZone(shelfB, false);
 
   /* ========================================
      AUDIO PLAYBACK LOGIC
@@ -311,12 +541,11 @@ document.addEventListener("DOMContentLoaded", () => {
     if (!audioNum || audioNum > 12) return;
     
     isPlayingAudio = true;
-    const audio = new Audio(`./audio/${String(audioNum).padStart(2, "0")}.mp3`);
+    const audio = new Audio(`../audio/${String(audioNum).padStart(2, "0")}.mp3`);
     currentAudioElement = audio;
     
     const subtitleLines = getAudioSubtitles(audioNum);
     
-    // Start subtitles when audio actually starts playing
     audio.addEventListener('playing', () => {
       const audioDuration = audio.duration;
       const linesCount = Object.keys(subtitleLines || {}).length;
@@ -326,7 +555,6 @@ document.addEventListener("DOMContentLoaded", () => {
       }
     }, { once: true });
 
-    // Show clickImg overlay
     if (clickImg && subtitleLines) {
       clickImg.style.display = "block";
       clickImg.style.opacity = "1";
@@ -335,10 +563,8 @@ document.addEventListener("DOMContentLoaded", () => {
       }
     }
 
-    // Show special images for certain audios
     toggleImagesOnAudio(audioNum, true);
 
-    // Audio-specific actions
     if (audioNum === 4 && miloImg) {
       miloImg.style.display = "block";
     }
@@ -346,30 +572,25 @@ document.addEventListener("DOMContentLoaded", () => {
     if (audioNum === 5 && contElement) {
       const inst = contElement.querySelector("h1");
       if (inst) {
-        inst.innerHTML = '<span style="color:red;font-weight:bold;">Click</span> the toys';
+        inst.innerHTML = '<span style="color:red;font-weight:bold;">Drag</span> and <span style="color:red;font-weight:bold;">Drop</span> toys<br>to the shelves';
         inst.style.opacity = "1";
       }
     }
 
-    // When audio ends
     audio.onended = () => {
-      // Clear subtitle interval if still running
       if (subtitleIntervalId) {
         clearInterval(subtitleIntervalId);
         subtitleIntervalId = null;
       }
       
-      // Hide subtitle smoothly
       hideSubtitle();
       
       if (clickImg) {
         clickImg.style.opacity = "0";
       }
 
-      // Hide special images
       toggleImagesOnAudio(audioNum, false);
 
-      // Reverse specific actions
       if (audioNum === 4 && miloImg) {
         miloImg.style.display = "none";
       }
@@ -378,12 +599,11 @@ document.addEventListener("DOMContentLoaded", () => {
         if (contElement) {
           const inst = contElement.querySelector("h1");
           if (inst) {
-            inst.innerHTML = '<span style="color:red;font-weight:bold;">Tap</span> and <span style="color:red;font-weight:bold;">drag</span> toys<br>to the shelves';
+            inst.innerHTML = '<span style="color:red;font-weight:bold;">Drag</span> and <span style="color:red;font-weight:bold;">Drop</span> toys<br>to the shelves';
             inst.style.opacity = "0";
           }
         }
-        enableToyClicks();
-        // Show bottom arrow after audio 5 finishes (when toys become clickable)
+        enableToyDrag();
         if (bottomArrow) {
           bottomArrow.style.display = "block";
         }
@@ -392,7 +612,6 @@ document.addEventListener("DOMContentLoaded", () => {
       currentAudioElement = null;
       isPlayingAudio = false;
 
-      // Continue queue or show Play Again
       if (audioQueue.length > 0) {
         setTimeout(() => playNextAudio(), 400);
       } else if (audioNum === 12) {
@@ -416,19 +635,17 @@ document.addEventListener("DOMContentLoaded", () => {
      START INITIAL AUDIOS
      ======================================== */
   function playInitialAudios() {
-    disableToyClicks();
+    disableToyDrag();
     setTimeout(() => {
       audioQueue.push(1, 2, 3, 4, 5);
       playNextAudio();
     }, 600);
   }
 
-  // Start on first click
   document.addEventListener("click", () => {
     if (!started) {
       started = true;
       
-      // Ensure background music plays on first interaction
       if (backgroundMusic && backgroundMusic.paused && !isMusicMuted) {
         backgroundMusic.play().catch(err => console.log("Background music play failed:", err));
       }
@@ -438,121 +655,37 @@ document.addEventListener("DOMContentLoaded", () => {
   }, { once: true });
 
   /* ========================================
-     TOY CLICK HANDLER
-     ======================================== */
-  const itemIdMap = {
-    "duck": "duck-toy",
-    "hore": "hore-toy",
-    "dino": "dino-toy",
-    "house": "house-toy",
-    "ball": "ball-toy",
-    "train": "train-toy",
-    "roll": "roll-toy",
-    "ship": "ship-toy",
-    "fan": "fan-toy"
-  };
-
-  items.forEach((item) => {
-    item.addEventListener("click", () => {
-      if (!toysClickable || placedItems.has(item)) return;
-
-      // Play Collect Star audio on each click
-      const collectStarAudio = new Audio("./audio/Collect Star.mp3");
-      collectStarAudio.play().catch(err => console.log("Collect Star audio play failed:", err));
-
-      // Mark as placed
-      placedItems.add(item);
-      
-      // Hide clicked toy
-      item.style.display = "none";
-      item.style.pointerEvents = "none";
-
-      // Find container
-      let containerClass = null;
-      if (item.closest(".items-img-A")) containerClass = ".items-img-A";
-      else if (item.closest(".items-img-B")) containerClass = ".items-img-B";
-      else if (item.closest(".items-img-C")) containerClass = ".items-img-C";
-      else if (item.closest(".items-img-D")) containerClass = ".items-img-D";
-
-      // Resize remaining toys
-      if (containerClass) resizeRemainingItems(containerClass);
-
-      // Show toy on shelf
-      const toyImageId = itemIdMap[item.id];
-      const toyImageElement = document.getElementById(toyImageId);
-      if (toyImageElement) {
-        toyImageElement.style.display = "block";
-        
-        const toyText = document.getElementById(`${toyImageId}-text`);
-        if (toyText) toyText.style.display = "none";
-      }
-
-      // Check if all toys placed
-      if (placedItems.size === items.length && !endSequenceStarted) {
-        endSequenceStarted = true;
-        
-        // Hide bottom arrow when all toys are placed
-        if (bottomArrow) {
-          bottomArrow.style.display = "none";
-        }
-        
-        // Play Collect Star audio when all toys are placed
-        const collectStarAudio = new Audio("./audio/Collect Star.mp3");
-        collectStarAudio.play().catch(err => console.log("Collect Star audio play failed:", err));
-        
-        setTimeout(() => {
-          for (let i = 6; i <= 12; i++) {
-            audioQueue.push(i);
-          }
-          if (!isPlayingAudio) {
-            playNextAudio();
-          }
-        }, 500);
-      }
-    });
-  });
-
-  /* ========================================
      ICON LEFT IMAGES - COLLECT STAR AUDIO
      ======================================== */
   iconLeftImages.forEach(img => {
     img.addEventListener("click", () => {
-      const collectStarAudio = new Audio("./audio/Collect Star.mp3");
+      const collectStarAudio = new Audio("../audio/Click.mp3");
       collectStarAudio.play().catch(err => console.log("Collect Star audio play failed:", err));
     });
   });
-
-  /* ========================================
-     HOME BUTTON
-     ======================================== */
-  // Home button functionality moved to popup section below
 
   /* ========================================
      PLAY AGAIN OVERLAY 
      ======================================== */
   function showPlayAgainPage() {
-    // Create overlay
     const overlay = document.createElement("div");
     overlay.className = "play-again-overlay";
     document.body.appendChild(overlay);
 
-    // Create box with image
     const box = document.createElement("div");
     box.className = "play-again-box";
     overlay.appendChild(box);
 
-    // Image
     const img = document.createElement("img");
-    img.src = "./IMAGES/the-end-slide (0-00-01-08).png";
+    img.src = "../IMAGES/Asset 1@2x.png";
     img.alt = "Great Job!";
     img.style.width = "100%";
     img.style.height = "100%";
     img.style.objectFit = "contain";
     box.appendChild(img);
 
-    // Close button (X) at bottom
     const closeBtn = document.createElement("img");
-    closeBtn.src = "./Index-page/x.png";
+    closeBtn.src = "../Index-page/replay.png";
     closeBtn.alt = "Close";
     closeBtn.style.position = "absolute";
     closeBtn.style.bottom = "18%";
@@ -566,7 +699,6 @@ document.addEventListener("DOMContentLoaded", () => {
     box.style.position = "relative";
     box.appendChild(closeBtn);
 
-    // Close button hover effect
     closeBtn.addEventListener("mouseenter", () => {
       closeBtn.style.transform = "translateX(-50%) scale(1.1)";
     });
@@ -574,75 +706,58 @@ document.addEventListener("DOMContentLoaded", () => {
       closeBtn.style.transform = "translateX(-50%) scale(1)";
     });
 
-    // Close button click handler
     closeBtn.addEventListener("click", (e) => {
       e.preventDefault();
       e.stopPropagation();
       location.reload();
     });
 
-    // Make overlay clickable to reload
     overlay.addEventListener("click", () => location.reload());
 
-    // Animate in
     setTimeout(() => {
       box.classList.add("show");
     }, 80);
   }
 
   /* ========================================
-     HOME POPUP FUNCTIONALITY (Modal with buttons)
+     HOME POPUP FUNCTIONALITY
      ======================================== */
   const homePopup = document.getElementById("home-popup");
   const stayBtn = document.getElementById("stay-btn");
   const leaveBtn = document.getElementById("leave-btn");
 
-  // Function to disable all interactions when home popup is open
   function disableInteractionsForHomePopup() {
-    // Disable pointer events on main content
-    if (mainContent) {
-      mainContent.style.pointerEvents = "none";
-    }
-    // Disable all buttons including info button
+    if (mainContent) mainContent.style.pointerEvents = "none";
     if (homeBtn) homeBtn.style.pointerEvents = "none";
     if (infoBtn) infoBtn.style.pointerEvents = "none";
     if (musicBtn) musicBtn.style.pointerEvents = "none";
     
-    // Disable all items (toys)
     items.forEach(item => {
       item.style.pointerEvents = "none";
     });
     
-    // Disable all icon left images
     iconLeftImages.forEach(img => {
       img.style.pointerEvents = "none";
     });
     
-    // Disable body but allow home popup
     document.body.style.pointerEvents = "none";
     if (homePopup) {
       homePopup.style.pointerEvents = "auto";
     }
   }
 
-  // Function to enable all interactions when home popup is closed
   function enableInteractionsAfterHomePopup() {
-    // Re-enable pointer events
-    if (mainContent) {
-      mainContent.style.pointerEvents = "auto";
-    }
+    if (mainContent) mainContent.style.pointerEvents = "auto";
     if (homeBtn) homeBtn.style.pointerEvents = "auto";
     if (infoBtn) infoBtn.style.pointerEvents = "auto";
     if (musicBtn) musicBtn.style.pointerEvents = "auto";
     
-    // Re-enable items (toys)
     items.forEach(item => {
       if (!placedItems.has(item)) {
         item.style.pointerEvents = "auto";
       }
     });
     
-    // Re-enable icon left images
     iconLeftImages.forEach(img => {
       img.style.pointerEvents = "auto";
     });
@@ -650,107 +765,81 @@ document.addEventListener("DOMContentLoaded", () => {
     document.body.style.pointerEvents = "auto";
   }
 
-  // Open home popup when home button is clicked
   if (homeBtn && homePopup) {
     homeBtn.addEventListener("click", (e) => {
       e.preventDefault();
       e.stopPropagation();
-      // Play Collect Star audio on click - same as icon buttons
-      const collectStarAudio = new Audio("./audio/Collect Star.mp3");
+      const collectStarAudio = new Audio("../audio/Click.mp3");
       collectStarAudio.play().catch(err => console.log("Collect Star audio play failed:", err));
       homePopup.style.display = "flex";
-      // Disable all interactions when popup opens
       disableInteractionsForHomePopup();
     });
   }
 
-  // Close popup when Stay button is clicked
   if (stayBtn && homePopup) {
     stayBtn.addEventListener("click", (e) => {
       e.preventDefault();
       e.stopPropagation();
-      // Play Collect Star audio on click - same as icon buttons
-      const collectStarAudio = new Audio("./audio/Collect Star.mp3");
+      const collectStarAudio = new Audio("../audio/Click.mp3");
       collectStarAudio.play().catch(err => console.log("Collect Star audio play failed:", err));
       homePopup.style.display = "none";
-      // Re-enable all interactions when popup closes
       enableInteractionsAfterHomePopup();
     });
   }
 
-  // Handle Leave button click
   if (leaveBtn && homePopup) {
     leaveBtn.addEventListener("click", (e) => {
       e.preventDefault();
       e.stopPropagation();
-      // Play Collect Star audio on click - same as icon buttons
-      const collectStarAudio = new Audio("./audio/Collect Star.mp3");
+      const collectStarAudio = new Audio("../audio/Click.mp3");
       collectStarAudio.play().catch(err => console.log("Collect Star audio play failed:", err));
-      // Add delay before redirect to allow audio to play
       setTimeout(() => {
         window.location.href = "main.html";
       }, 200);
     });
   }
 
-  // Home popup can only be closed by clicking Stay or Leave buttons
-  // Background click to close has been disabled
-
   /* ========================================
-     INFO POPUP FUNCTIONALITY (Image popup)
+     INFO POPUP FUNCTIONALITY
      ======================================== */
   const infoPopup = document.getElementById("info-popup");
   const popupImg = document.getElementById("popup-img");
   const closePopup = document.getElementById("close-popup");
 
-  // Function to disable all interactions except popup
   function disablePageInteractions() {
-    // Disable pointer events on main content
-    if (mainContent) {
-      mainContent.style.pointerEvents = "none";
-    }
-    // Disable all buttons and clickable elements
+    if (mainContent) mainContent.style.pointerEvents = "none";
     if (homeBtn) homeBtn.style.pointerEvents = "none";
     if (infoBtn) infoBtn.style.pointerEvents = "none";
     if (musicBtn) musicBtn.style.pointerEvents = "none";
     
-    // Disable all items (toys)
     items.forEach(item => {
       item.style.pointerEvents = "none";
     });
     
-    // Disable all icon left images
     iconLeftImages.forEach(img => {
-      if (img !== infoBtn) { // Don't disable info button that opened the popup
+      if (img !== infoBtn) {
         img.style.pointerEvents = "none";
       }
     });
     
-    // Disable body but allow popup
     document.body.style.pointerEvents = "none";
     if (infoPopup) {
       infoPopup.style.pointerEvents = "auto";
     }
   }
 
-  // Function to enable all interactions
   function enablePageInteractions() {
-    // Re-enable pointer events
-    if (mainContent) {
-      mainContent.style.pointerEvents = "auto";
-    }
+    if (mainContent) mainContent.style.pointerEvents = "auto";
     if (homeBtn) homeBtn.style.pointerEvents = "auto";
     if (infoBtn) infoBtn.style.pointerEvents = "auto";
     if (musicBtn) musicBtn.style.pointerEvents = "auto";
     
-    // Re-enable items (toys)
     items.forEach(item => {
       if (!placedItems.has(item)) {
         item.style.pointerEvents = "auto";
       }
     });
     
-    // Re-enable icon left images
     iconLeftImages.forEach(img => {
       img.style.pointerEvents = "auto";
     });
@@ -758,42 +847,32 @@ document.addEventListener("DOMContentLoaded", () => {
     document.body.style.pointerEvents = "auto";
   }
 
-  // Open info popup when info button is clicked
   if (infoBtn && infoPopup && popupImg) {
     infoBtn.addEventListener("click", (e) => {
       e.preventDefault();
       e.stopPropagation();
-      // Don't allow info popup to open if home popup is open
       if (homePopup && homePopup.style.display === "flex") {
         return;
       }
-      // Play Collect Star audio on click - same as icon buttons
-      const collectStarAudio = new Audio("./audio/Collect Star.mp3");
+      const collectStarAudio = new Audio("../audio/Click.mp3");
       collectStarAudio.play().catch(err => console.log("Collect Star audio play failed:", err));
-      // Get image source from data-img attribute
       const imgSrc = infoBtn.getAttribute("data-img");
       if (imgSrc) {
         popupImg.src = imgSrc;
         infoPopup.style.display = "flex";
-        // Disable all other interactions
         disablePageInteractions();
       }
     });
   }
 
-  // Close info popup when close button is clicked (ONLY way to close)
   if (closePopup && infoPopup) {
     closePopup.addEventListener("click", (e) => {
       e.preventDefault();
       e.stopPropagation();
-      // Play Collect Star audio on click - same as icon buttons
-      const collectStarAudio = new Audio("./audio/Collect Star.mp3");
+      const collectStarAudio = new Audio("../audio/Click.mp3");
       collectStarAudio.play().catch(err => console.log("Collect Star audio play failed:", err));
       infoPopup.style.display = "none";
-      // Re-enable all interactions
       enablePageInteractions();
     });
   }
-
-  // Remove background click to close - info popup can only be closed by X button
 });
